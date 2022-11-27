@@ -1,0 +1,1044 @@
+﻿<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+    <title>WEBRTC-SIP电话</title>
+	<link rel="stylesheet" type="text/css" href="scripts/ui/css/sipphone.css">
+
+    <script src="scripts/jssip.min.js" type="text/javascript"></script>
+    <script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+
+</head>
+<body onload="window_onload();" bgcolor="#f0f8ff">
+
+    <div class="divframe" style="width:330px;height:450px;background:#CCE6FF;color:#333;">
+
+        <div class="divTitle" style="margin-left:10px;width:310px;height:24px;background:#99cdff;color:#333;">
+            <image id ='idimageStatus' style='width:16px; height: 16px; margin-top: 1px; 'src='scripts/ui/images/cicon.png' />
+            <label id="idPhoneTitle" style="margin-left: 2px;margin-top: 2px;">网络电话</label>
+        </div>
+        <div class="divTitle" style="margin-left:10px;margin-top:6px;padding-top: 3px;width:310px;height:30px;background:#99cdff;color:#333;" >
+            <label id="idPhoneStatus" style="margin-left: 6px;margin-top:10px;">登陆状态：未登录</label>
+        </div>
+
+        <div class="divPad" style="margin-left:10px;margin-top:12px;padding-top: 10px;width:310px;height:50px;background:#99cdff;color:#333;">
+            <input id='btnConnect' type="button"  class="BtnMethod" onclick="G_oSipPhone.funPickUp();"  value="接通"  />
+            <input id='btnDisconnect' type="button" class="BtnMethod"  onclick="G_oSipPhone.funDisconnect();"  value="挂断"  />
+            <input id='btnDoCall' type="button" class="BtnMethod"  onclick="G_oSipPhone.funDocall();"  value="呼出"  />
+            <input id='btnRegister' type="button" class="BtnMethod"  onclick="G_oSipPhone.funDoRegister();"  value="注册"  />
+            <input id='btnSetting' type="button" class="BtnMethod" onclick="G_oSipPhone.funSetting((G_oSipPhone.setting==0)?1:0);"  value="设置..."  />
+        </div>
+
+        <div class="divPad" style="margin-left:10px;margin-top:10px;padding-top: 15px;width:310px;height:230px;background:#99cdff;color:#333;">
+            目标号码: <input type="text" class="InputClass" id="destNum" value="" size="12"  />
+            <br>
+            <br>
+            <input type="button" class="BtnDial" onclick='G_oSipPhone.funDial(1);'  value="1"  />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(2);'  value="2" />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(3);'  value="3"  />
+            <br>
+            <input type="button" class="BtnDial" onclick='G_oSipPhone.funDial(4);'  value="4"  />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(5);'  value="5" />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(6);'  value="6"  />
+            <br>
+            <input type="button" class="BtnDial" onclick='G_oSipPhone.funDial(7);'  value="7"  />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(8);'  value="8" />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(9);'  value="9"  />
+            <br>
+            <input type="button" class="BtnDial" onclick='G_oSipPhone.funDial(10);'  value="*"  />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(11);'  value="0" />
+            <input type="button" class="BtnDial"  onclick='G_oSipPhone.funDial(12);'  value="#"  />
+        </div>
+        <div class="divStatus" style="margin-left:10px;padding-top: 3px;width:310px;height:25px;background:#99cdff;color:#333;" >
+            <label id="idPhoneStaus" style="margin-left: 2px"></label>
+        </div>
+	</div>
+
+    <div class="divframe" id="divlog" style='position:absolute;border:0px solid #00ff00; left:340px;top:10px;display: none;'>
+        <input id='btnEmpty' type="button" onclick="G_oSipPhone.emptyLog();" value="清空日志" title="执行清空日志;" /><br>
+        <TEXTAREA id="TextareaInfo" name="TextareaInfo" rows="34" cols="120" value="" style="overflow:auto;font-family:verdana;font-size:12px"></TEXTAREA>
+    </div>
+
+    <div class="divframe" id="divSetting" style="position:absolute;top:10px;left:340px;width:400px;height:521px;background:#CCE6FF;color:#333;display: none;">
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            服 务 器: <input type="text" id="sipServer" value="192.168.2.176"size="20"  />
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            端口&nbsp;&nbsp;: <input type="text" id="sipPort" value="5049" size="8"  />
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            本机号码&nbsp;&nbsp;: <input type="text" id="sipDn" value="179000000002" size="20"  />
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            密码&nbsp;&nbsp;: <input type="text" id="sipPassword" value="00000000" size="20"  />
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            sipType:
+            <SELECT ID="oSipType" NAME="oSipTypes" >
+                <OPTION VALUE="0" SELECTED>  sipTypeJSip(纯JS)
+                <OPTION VALUE="1" >  sipTypeRemoteSip(websocket+cinsip)
+                <OPTION VALUE="2" >  sipTypeRemoteHttpSip(http+cinsip)
+                <OPTION VALUE="3" >  sipTypeAuto(优先websocket+cinsip）
+            </SELECT>
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            XPath: <input type="text" id="XPath" value="webrtc" size="12"  />
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            ProtocolType:
+            <SELECT ID="oProtocolType" NAME="ProtocolTypes" onchange="if(application != null) application.oJSipCtrl.SetAttribute('SipProtocol',oProtocolType.options[oProtocolType.options.selectedIndex].value);">
+                <OPTION VALUE="ws" >ws
+                <OPTION VALUE="wss" SELECTED>wss
+            </SELECT>
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            MediaType:
+            <SELECT ID="oMediaTypeType" NAME="MediaTypeType" onchange="if(application != null) application.oJSipCtrl.SetAttribute('MediaType',parseInt(oMediaTypeType.options[oMediaTypeType.options.selectedIndex].value));">
+                <OPTION VALUE="0" SELECTED>WEBRTC
+                <OPTION VALUE="1" >XYLINK
+                <OPTION VALUE="2" >AGORA
+            </SELECT>
+
+        </div>
+
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            显示详细日志:
+            <SELECT ID="oConsoleType" NAME="ConsoleType" onchange="if(application != null) application.DislayProtocol(parseInt(oConsoleType.options[oConsoleType.options.selectedIndex].value));">
+                <OPTION VALUE="0" SELECTED>不显示
+                <OPTION VALUE="1" >显示
+            </SELECT>
+        </div>
+
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            摄像头:
+            <SELECT ID="oCameraDevices" NAME="oCameraDevices" >
+            </SELECT>
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            分辨率宽度&nbsp;&nbsp;: <input type="text" id="resolutionWidth" value="480" size="8"  />
+            分辨率高度&nbsp;&nbsp;: <input type="text" id="resolutionHeight" value="640" size="8"  />
+        </div>
+
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            <label><input id="CheckLog" type="checkbox" value="0" onclick="G_oSipPhone.funlog(CheckLog.checked);"/>显示日志窗口 </label>
+        </div>
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            <label><input id="CheCkVedio" type="checkbox" value="0" onclick="G_oSipPhone.funVedio(CheCkVedio.checked);"/>支持视频 </label>
+            <label><input id="CheCkAudio" type="checkbox" value="1" onclick="G_oSipPhone.funAudio(CheCkAudio.checked);" checked/>支持音频 </label>
+        </div>
+
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:25px;background:#99cdff;color:#333;" >
+            <label><input id="CheCkAutoRegister" type="checkbox" value="0" onclick="G_oSipPhone.funAutoRegister(CheCkAutoRegister.checked);"/>自动注册 </label>
+        </div>
+
+        <div class="divInput" style="margin-left:10px;padding-top: 3px;width:370px;height:40px;background:#99cdff;color:#333;text-align:center;" >
+            <input id='btnOK' type="button"  class="BtnMethod" onclick='G_oSipPhone.funDoSetting(0);'  value="确定" title="执行方法:funDoSetting()" />
+            <input id='btnClose' type="button"  class="BtnMethod" onclick="G_oSipPhone.funSetting(0);"  value="关闭" title="执行方法:funDoSetting()" />
+        </div>
+    </div>
+
+    <div class="divframe" id="divCallDlg" style="position:absolute;top:10px;left:340px;width:400px;height:290px;background:#CCE6FF;color:#333;display: none;">
+        <div class="divTitle" style="margin-left:10px;width:380px;height:24px;background:#99cdff;color:#333;">
+            <label id="idCallScene" style="margin-left: 6px;">呼叫场景：就绪</label>
+        </div>
+        <div class="divTool" style="margin-left:10px;margin-top:8px;padding-top: 10px;width:380px;height:40px;background:#99cdff;color:#333;">
+			<input id='btnConsultDlg' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funDlg('UpdateMedia');"  value="音视频切换..."  />
+			<!--
+            <input id='btnMute' type="button"  class="BtnCallMethod" onclick="G_oSipPhone.funMute();"  value="静音"  />
+            <input id='btnHold' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funHold();"  value="保持"  />
+            <input id='btnSingleTransfterDlg' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funDlg('SingleTransfter');"  value="忙转..."  />
+            <input id='btnConsultDlg' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funDlg('Consult');"  value="咨询..."  />
+            <input id='btnTransfter' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funTransfer();"  value="转移"  />
+            <input id='btnAlertnate' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funAlertnate();"  value="切换"  />
+            <input id='btnConference' type="button" class="BtnCallMethod"  onclick="G_oSipPhone.funConference();"  value="会议"  />
+			-->
+        </div>
+        <div id="divCallInput" class="divStatus" style="margin-left:10px;margin-top:6px;padding-top: 6px;width:380px;height:40px;background:#99cdff;color:#333;display: none;" >
+            <label id="idDestNum" style="margin-left: 6px;">参数:</label> <input type="text" id="ConsultNum" value="" size="12"  />
+            <input id='btnCall' type="button"  class="BtnCallMethod" onclick='G_oSipPhone.funCall();'  value="确定" title="执行方法:funDoSetting()" />
+            <input id='btnCallCancle' type="button"  class="BtnCallMethod" onclick="G_oSipPhone.funDlg('Cancel');"  value="隐藏" title="执行方法:funDlg()" />
+        </div>
+
+        <div class="divStatus" style="margin-left:10px;padding-top: 3px;width:380px;height:120px;background:#99cdff;color:#333;" >
+            <label id="idPhoneCallInfo" style="margin-left: 6px;">呼叫信息：</label>
+            <div id="divCallTable" style="margin:5px;border: 0px solid #0E2D5F;">
+            <table id="idTableCallInfo" style="margin-left: 4px;margin-top: 10px;BORDER-COLLAPSE: collapse;width: 360px;" border='0' bordercolor="#FFFFF">
+                <TR><td width="200px" height="20px">呼叫方：111111111</td><td><label style='cursor: pointer;text-decoration:underline' >挂断</label></td></TR>
+                <TR><td>呼叫方：222222222</td><td></td></TR>
+                <TR><td>呼叫方：333333331</td><td></td></TR>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="divframe" id="divVedioDlg" style="position:absolute;top:10px;left:900px;width:424px;height:370px;background:#CCE6FF;color:#333;display: none;">
+        <div  class="divStatus" style="margin-left:2px;margin-top:2px;padding-top: 10px;width:421px;height:358px;background:#99cdff;color:#333;" >
+            &nbsp;&nbsp;视频窗口:
+            <div style="cursor: move; position: relative; border: 2px solid rgb(70, 163, 255); border-radius: 10px; left: 10px; top: 5px; width: 400px; height: 300px;  background: rgb(130, 130, 130); display: block;"><!--autoplay playsinline-->
+                <div id="remote_stream" style="width:400px; height: 300px;background-color: transparent;" ></div>
+                <div id="share_stream" style="position:absolute;left:150px;bottom: 6px;width: 133px;height: 100px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa; display: none"></div>
+                <div id="local_stream" style="position:absolute;left:8px;bottom: 6px;width: 133px;height: 100px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa;"></div>
+            </div>
+            <div style="position: relative;left: 12px; top: 10px;  " >
+                <input id="btnShareScreen" onclick="shareSreen(0);" type="button" value="屏幕共享" >
+                <input id="btnShareFile" onclick="shareSreen(1);" type="button" value="切换摄像头" >
+                <input id="btnSnapShot" onclick="SnapShot();" type="button" value="远程快照" >
+            </div>
+        </div>
+    </div>
+
+    <div class="divframe" id="divPicDlg" style="position:absolute;top:280px;left:625px;width:424px;height:345px;background:#CCE6FF;color:#333;display: none">
+        <div style="position:absolute;border:0px solid #ff00ff;left:400px; top:4px">
+            <img src="jquery-easyui-1.4\themes\icons\cancel.png"  onclick="G_oSipPhone.DisplayDiv('divPicDlg',0);" />
+        </div>
+        <div style="position:absolute;border:0px solid #ff00ff;top:30px;left:4px;width:414px;height:310px;">
+            <img  id="recvPic" src="" style="position:absolute;border:0px solid #ff00ff;top:0px;left:0px;width:414px;height:310px;" />
+        </div>
+    </div>
+
+    <video id="local_files" style="position:absolute;left:980px;bottom: 106px;width: 300px;height: 200px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa; display: none" autoplay playsinline controls muted  loop="loop" >
+        <source id = "srcfile" src="scripts/sip/videos/cat.mp4" type="video/mp4" />
+    </video>
+
+</body>
+</html>
+ <script type="text/javascript">
+
+    var G_oSipPhone = {
+        sipRegisterStatus:-1,
+        sipCallStatus:0,
+        sipCallStatusDes:"未登录",
+        error:-1,
+        errorDes:"",
+        realSipType:-1,
+
+        setting:0,
+        logShow:0,
+        vedio:0,
+        audio:1,
+        autoRegister:0,
+
+        mute:0,
+        hold:0,
+
+
+        SIP_BtnID:{
+            btnConnect: 0,
+            btnDisconnect: 1,
+            btnDoCall: 2,
+            btnRegister: 3,
+            btnSetting: 4,
+            btnMute: 5,
+            btnHold: 6,
+            btnSingleTransfterDlg: 7,
+            btnConsultDlg: 8,
+            btnTransfter:9,
+            btnAlertnate:10,
+            btnConference:11
+        },
+        UIs:["btnConnect",
+            "btnDisconnect",
+            "btnDoCall",
+            "btnRegister",
+            "btnSetting",
+            "btnMute",
+            "btnHold",
+            "btnSingleTransfterDlg",
+            "btnConsultDlg",
+            "btnTransfter",
+            "btnAlertnate",
+            "btnConference"],
+
+        SipCallScenes:[],
+        SipCallInfo:[],
+
+        sipConfig:{
+            serverIP:"",
+            serverPort:5066,
+            dn:"19900000003",
+            password:"",
+            xPath:""
+        },
+
+        ReSetStatus: function (){
+            this.sipRegisterStatus=0;
+            this.sipCallStatus=0;
+            this.sipCallStatusDes = "未登录";
+            this.error=-1;
+            this.errorDes="";
+            this.realSipType=-1;
+            this.setting=0;
+            this.logShow=0;
+            this.mute = 0;
+            this.hold = 0;
+        },
+        ClearCallStatus: function (){
+            this.mute = 0;
+            this.hold = 0;
+            this.SetBtnText("btnMute","静音");
+            this.SetBtnText("btnHold","保持");
+        },
+
+        Init: function () {
+           //SIPCALL_NULL
+           this.SipCallScenes.push([this.SIP_BtnID.btnRegister,this.SIP_BtnID.btnSetting]);
+           //SIPCALL_IDLE
+           this.SipCallScenes.push([this.SIP_BtnID.btnDoCall,this.SIP_BtnID.btnRegister,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_CALLING
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnDoChart]);
+           //SIPCALL_RING
+           this.SipCallScenes.push([this.SIP_BtnID.btnConnect,this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_ORIGATE
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_CONNECTED
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnMute,this.SIP_BtnID.btnHold,
+                this.SIP_BtnID.btnSingleTransfterDlg,this.SIP_BtnID.btnConsultDlg,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_MUTE
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnMute,this.SIP_BtnID.btnHold,
+                this.SIP_BtnID.btnSingleTransfterDlg,this.SIP_BtnID.btnConsultDlg,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_HOLD
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnMute,this.SIP_BtnID.btnHold,
+                this.SIP_BtnID.btnSingleTransfterDlg,this.SIP_BtnID.btnConsultDlg,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_CONSULTRING
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_CONSULT
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnTransfter,
+                this.SIP_BtnID.btnAlertnate,this.SIP_BtnID.btnConference,this.SIP_BtnID.btnSetting]);
+            //SIPCALL_CONFERENCE
+            this.SipCallScenes.push([this.SIP_BtnID.btnDisconnect,this.SIP_BtnID.btnSetting]);
+
+            this.sipCallStatus = SipCallSence.SIPCALL_NULL;
+        },
+        UpdateBtnByID: function (id,flag){
+          var oBtn = document.getElementById(id);
+          if(oBtn == null)
+              return;
+          if(flag == 0)
+              oBtn.disabled = true;
+          else
+              oBtn.disabled = false;
+        },
+        UpdateUI: function (){
+            if(this.sipCallStatus < SipCallSence.SIPCALL_NULL || this.sipCallStatus>=SipCallSence.SIPCALL_END)
+                return;
+            for(var i=0;i<this.UIs.length;i++){
+                this.UpdateBtnByID(this.UIs[i],0);
+            }
+            var oScene = this.SipCallScenes[this.sipCallStatus];
+            for(var i=0;i<oScene.length;i++){
+                this.UpdateBtnByID(this.UIs[oScene[i]],1);
+            }
+            switch (this.sipCallStatus){
+                case SipCallSence.SIPCALL_NULL:
+                    this.ClearCallStatus();
+                    break;
+                case SipCallSence.SIPCALL_IDLE:
+                    this.ClearCallStatus();
+                    break;
+                case SipCallSence.SIPCALL_RING:
+                    break;
+                case SipCallSence.SIPCALL_ORIGATE:
+                    break;
+                case SipCallSence.SIPCALL_CONNECTED:
+                    this.ClearCallStatus();
+                    break;
+                case SipCallSence.SIPCALL_MUTE:
+                    this.mute = 1;
+                    this.SetBtnText("btnMute","恢复");
+                    break;
+                case SipCallSence.SIPCALL_HOLD:
+                    this.hold = 1;
+                    this.SetBtnText("btnHold","接回");
+                    break;
+                case SipCallSence.SIPCALL_CONSULTRING:
+                    break;
+                case SipCallSence.SIPCALL_CONSULT:
+                    break;
+                case SipCallSence.SIPCALL_CONFERENCE:
+                    break;
+
+            }
+            this.DisplayStatus(this.sipCallStatusDes);
+        },
+        SetPhoneTitle: function (sText){
+            var oLabel = document.getElementById("idPhoneTitle");
+            if(oLabel != null)
+                oLabel.innerHTML = ""+sText;
+        },
+        SetPhoneStatus: function (sText){
+            var oLabel = document.getElementById("idPhoneStatus");
+            if(oLabel != null)
+                oLabel.innerHTML = ""+sText;
+        },
+        SetCallSceneStatus: function (sText){
+            var oLabel = document.getElementById("idCallScene");
+            if(oLabel != null)
+                oLabel.innerHTML = "呼叫场景:"+sText;
+        },
+        DisplayStatus: function (sText){
+            var oLabel = document.getElementById("idPhoneStaus");
+            if(oLabel != null)
+                oLabel.innerHTML = sText;
+        },
+        SetBtnText: function (id,sText){
+            var oBtn = document.getElementById(id);
+            if(oBtn != null)
+                oBtn.value = sText;
+        },
+        GetBtnText: function (id){
+            var oBtn = document.getElementById(id);
+            if(oBtn != null)
+                return oBtn.value;
+            return "";
+        },
+        SetCallScenseInfo: function (callInfo){
+            this.sipCallStatus = callInfo.ScenseID;
+            this.sipCallStatusDes = callInfo.ScenseName;
+            this.SipCallInfo.splice(0,this.SipCallInfo.length);
+            for(var i=0;i<callInfo.CallSegments.length;i++)
+                this.SipCallInfo.push(callInfo.CallSegments[i]);
+            this.UpdateUI();
+        },
+        RefreshCallInfo: function (){
+            var oTableCallInfo = document.getElementById("idTableCallInfo");
+            if(oTableCallInfo != null){
+                var strHTML = "",strTemp = "";
+                var bDisconnect = (this.SipCallInfo.length>2);
+                for(var i=0;i<this.SipCallInfo.length;i++){
+                    if(bDisconnect)
+                        strTemp = stringFormatSip("<TR><td width='200px' height='20px'>呼叫方:{0}</td><td>{1}</td><td><label style='cursor: pointer;text-decoration:underline' >挂断</label></td></TR>",
+                            this.SipCallInfo[i][0],this.SipCallInfo[i][1]);
+                    else
+                        strTemp = stringFormatSip("<TR><td width='200px' height='20px'>呼叫方:{0}</td><td>{1}</td><td></td></TR>",this.SipCallInfo[i][0],this.SipCallInfo[i][1]);
+                    strHTML = strHTML + strTemp;
+                }
+                strHTML = "<tbody>"+strHTML+"</tbody>";
+                oTableCallInfo.innerHTML = strHTML;
+                console.info(strHTML);
+            }
+            this.SetCallSceneStatus(this.sipCallStatusDes);
+        },
+
+        SetSipRegisterStatus: function (status){
+            this.sipRegisterStatus = status;
+            if(this.sipRegisterStatus == 1){
+                this.SetBtnText("btnRegister","注销");
+                this.SetPhoneTitle("本机号码:"+sipDn.value);
+                this.SetPhoneStatus("当前状态:注册成功");
+            }
+            else if(this.sipRegisterStatus == 0){
+                this.SetBtnText("btnRegister","注册");
+                this.SetPhoneTitle("网络电话");
+                this.SetPhoneStatus("当前状态:注册失败");
+            }
+            else if(this.sipRegisterStatus == -1){
+                this.SetBtnText("btnRegister","注册");
+                this.SetPhoneTitle("网络电话");
+                this.SetPhoneStatus("当前状态:注销成功");
+            }
+            this.UpdateUI();
+        },
+        SetSipCallStatus: function(){
+            switch(this.SipCallInfo.ScenseID) {
+                case SipCallSence.SIPCALL_IDLE: {
+                    this.SetBtnText("btnDisconnect","挂断");
+                    this.ClearCallStatus();
+                    if(this.realSipType == sipAdapterTypeJSip)
+                        this.DisplayDiv("divCallDlg",0);
+                    break;
+                }
+                case SipCallSence.SIPCALL_RING: {
+                    this.SetBtnText("btnDisconnect","拒接");
+                    break;
+                }
+                case SipCallSence.SIPCALL_ORIGATE: {
+                    this.SetBtnText("btnDisconnect","取消");
+                    break;
+                }
+                case SipCallSence.SIPCALL_CONNECTED: {
+                    this.SetBtnText("btnDisconnect","挂断");
+                    if(this.realSipType == sipAdapterTypeJSip){
+                        this.RefreshCallInfo();
+                        this.DisplayDiv("divCallDlg",1);
+                    }
+                    break;
+                }
+                default:
+                    return;
+            }
+            this.UpdateUI();
+        },
+        SetSipCallStatus: function (status,infos){
+            this.sipCallStatus = status;
+            switch(this.sipCallStatus) {
+                case SipCallSence.SIPCALL_IDLE: {
+                    this.SetBtnText("btnDisconnect","挂断");
+                    if(this.realSipType == sipAdapterTypeJSip)
+                        this.DisplayDiv("divCallDlg",0);
+                    break;
+                }
+                case SipCallSence.SIPCALL_RING: {
+                    this.SetBtnText("btnDisconnect","拒接");
+                    break;
+                }
+                case SipCallSence.SIPCALL_ORIGATE: {
+                    this.SetBtnText("btnDisconnect","取消");
+                    break;
+                }
+                case SipCallSence.SIPCALL_CONNECTED: {
+                    this.SetBtnText("btnDisconnect","挂断");
+                    if(this.realSipType == sipAdapterTypeJSip){
+                        this.RefreshCallInfo();
+                        this.DisplayDiv("divCallDlg",1);
+                    }
+                    break;
+                }
+                default:
+                    return;
+            }
+            this.UpdateUI();
+        },
+        DisplayDiv: function (id,flag){
+            var oDiv = document.getElementById(id);
+            if(oDiv == null)
+                return;
+            if(flag == 0)
+                oDiv.style.display = "none";
+            else
+                oDiv.style.display = "";
+        },
+        InitUI: function (){
+            this.Init();
+            this.DisplayDiv("divSetting",this.setting);
+            this.DisplayDiv("divlog",this.logShow);
+            this.DisplayDiv("divCallDlg",0);
+            this.loadConfigFromDefault();
+            this.UpdateUI();
+        },
+
+        saveConfigToDefault: function (){
+            setCookie("ServerIP",this.sipConfig.serverIP,365);
+            setCookie("ServerPort",this.sipConfig.serverPort,365);
+            setCookie("DN",this.sipConfig.dn,365);
+            setCookie("PassWord",this.sipConfig.password,365);
+            setCookie("XPath",this.sipConfig.xPath,365);
+        },
+        loadConfigFromDefault: function (){
+          if(!IsCookiesUsed()) return;
+            this.sipConfig.serverIP = this.getCookieStrValue("ServerIP",sipServer.value);
+            this.sipConfig.serverPort = this.getCookieIntValue("ServerPort",string2Int(sipPort.value));
+            this.sipConfig.dn = this.getCookieStrValue("DN",sipDn.value);
+            this.sipConfig.password = this.getCookieStrValue("PassWord",sipPassword.value);
+            this.sipConfig.xPath = this.getCookieStrValue("XPath",XPath.value);
+
+            document.getElementById("sipServer").value =  this.sipConfig.serverIP ;
+            document.getElementById("sipDn").value = this.sipConfig.dn;
+            document.getElementById("sipPort").value = this.sipConfig.serverPort;
+            document.getElementById("sipPassword").value = this.sipConfig.password;
+            document.getElementById("XPath").value = this.sipConfig.xPath;
+        },
+        getCookieIntValue: function (strName,defaultValue){
+            var strValue = getCookie(strName);
+            if(strValue == "")
+                return defaultValue;
+            return parseInt(strValue);
+        },
+        getCookieStrValue: function (strName,defaultValue){
+            var strValue = getCookie(strName);
+            if(strValue == "")
+                return defaultValue;
+            return strValue;
+        },
+
+        funSetting: function (flag){
+            this.setting=flag;
+            this.DisplayDiv('divSetting',this.setting);
+        },
+        funlog: function (flag){
+            this.logShow=flag;
+            this.DisplayDiv('divlog',this.logShow);
+        },
+        SetVedioWindow: function(){
+            if( application ){
+                application.oJSipCtrl.SetAttribute("Vedio",this.vedio);
+            }
+        },
+        funVedio: function (flag){
+            this.vedio = flag;
+            if(application != null)
+                application.oJSipCtrl.SetAttribute("Vedio",this.vedio);
+        },
+        funAudio: function (flag){
+            this.audio = flag;
+            if(application != null)
+                application.oJSipCtrl.SetAttribute("Audio",this.audio);
+        },
+        funAutoRegister : function(flag){
+            this.autoRegister = flag;
+        },
+        funDlg: function (skey){
+            var oDivInput = window.document.getElementById("divCallInput");
+            if(skey == "Cancel") {
+                oDivInput.style.display = "none";
+            }
+
+            if(skey == "SingleTransfter") {
+                oDivInput.style.display = "block";
+                this.SetBtnText("btnCall","忙转");
+            }
+ 			//UpdateMedia
+            if(skey == "UpdateMedia") {
+                oDivInput.style.display = "block";
+                this.SetBtnText("btnCall","音视频切换");
+            }
+       },
+        funDoRegister: function (){
+            if(this.sipRegisterStatus == 1){
+                application.oJSipCtrl.UnInitial();
+                this.DisplayStatus("正在注销...");
+            }
+            else{
+                if(this.realSipType != -1){
+                    applicationSipUnLoad();
+                    this.ReSetStatus();
+                }
+                applicationSipLoad("",sipCallBackEvent,parseInt(oSipType.options[oSipType.options.selectedIndex].value));
+                this.DisplayStatus("正在初始化...");
+            }
+        },
+        funDoSetting: function (flag){
+            if(flag == 0)
+                this.funSetting(0);
+            if(application == null){
+                return ;
+            }
+            var  serverIP = document.getElementById("sipServer").value;
+            var  dn = document.getElementById("sipDn").value;
+            var  port = document.getElementById("sipPort").value;
+            var  password = document.getElementById("sipPassword").value;
+            application.oJSipCtrl.SetAttribute("SipServerIP",serverIP);
+            application.oJSipCtrl.SetAttribute("SipServerPort",parseInt(port));
+            application.oJSipCtrl.SetAttribute("Dn",dn);
+            application.oJSipCtrl.SetAttribute("Domain",serverIP);
+            application.oJSipCtrl.SetAttribute("PassWord",password);
+            application.oJSipCtrl.SetAttribute("XPath",document.getElementById("XPath").value);
+            application.oJSipCtrl.SetAttribute('SipProtocol',oProtocolType.options[oProtocolType.options.selectedIndex].value);
+            application.DislayProtocol(parseInt(oConsoleType.options[oConsoleType.options.selectedIndex].value));
+            application.oJSipCtrl.SetAttribute('MediaType',parseInt(oMediaTypeType.options[oMediaTypeType.options.selectedIndex].value));
+            application.oJSipCtrl.SetAttribute("Vedio",this.vedio);
+            application.oJSipCtrl.SetAttribute("Audio",this.audio);
+            application.oJSipCtrl.SetAttribute('MediaType',parseInt(oMediaTypeType.options[oMediaTypeType.options.selectedIndex].value));
+
+            this.SetVedioWindow();
+
+            this.sipConfig.serverIP = serverIP;
+            this.sipConfig.serverPort = parseInt(port);
+            this.sipConfig.dn = dn;
+            this.sipConfig.password = password;
+            this.sipConfig.xPath = document.getElementById("XPath").value;
+            this.saveConfigToDefault();
+        },
+        funDocall: function (){
+            this.DisplayStatus("外呼中.....");
+            var  sNum = document.getElementById("destNum").value;
+            sNum = trimStr(sNum);
+            if(sNum == ""){
+                alert("目标号码不能为空!");
+                return;
+            }
+            var CallData = "AAAAA: BBBBB|||CCC: DDDD|||KKK: TTT";//多个参数
+            CallData = "TestParam: BBBBB";//单个参数
+            var mt = parseInt(oMediaTypeType.options[oMediaTypeType.options.selectedIndex].value);
+            if(mt==2){
+                if(CheCkVedio.checked)
+                    CallData = "Agora-Info:agoravideo";
+                else
+                    CallData = "Agora-Info:agora";
+            }
+            if( application.oJSipCtrl.DoCall(sNum,CallData)== 0)
+                showLog("呼出成功\r\n");
+            else
+                showLog("呼出失败\r\n");
+        },
+        funDial: function (nkey){
+            if(this.sipCallStatus == SipCallSence.SIPCALL_CONNECTED){
+                if( application.oJSipCtrl.SendDTMF(nkey)== 0)
+                    showLog("SendDTMF成功\r\n");
+                else
+                    showLog("SendDTMF失败\r\n");
+            }
+            else {
+                var oNum = document.getElementById("destNum");
+                if(nkey == 10) nkey = "*";
+                if(nkey == 11) nkey = "0";
+                if(nkey == 12) nkey = "#";
+                oNum.value = oNum.value+nkey;
+            }
+        },
+        funDisconnect: function (){
+            if( application.oJSipCtrl.Disconnect()== 0)
+                showLog("Disconnect成功\r\n");
+            else
+                showLog("Disconnect失败\r\n");
+        },
+        funPickUp: function (){
+            if( application.oJSipCtrl.Pickup()== 0)
+                showLog("Pickup\r\n");
+            else
+                showLog("Pickup失败\r\n");
+        },
+        funCall: function (flag){
+            var sText = this.GetBtnText("btnCall");
+			 var  sDestNum = document.getElementById("ConsultNum").value;
+            sDestNum = trimStr(sDestNum);
+            if(sDestNum == ""){
+                alert("目标号码不能为空!");
+                return;
+            }
+			
+            if(sText == "咨询"){
+                if( application.oJSipCtrl.Consult(sDestNum)== 0)
+                    showLog("Transfer\r\n");
+                else
+                    showLog("Transfer失败\r\n");
+            }
+            else if(sText == "忙转"){
+                if( application.oJSipCtrl.Transfer(sDestNum)== 0)
+                    showLog("Transfer\r\n");
+                else
+                    showLog("Transfer失败\r\n");
+            }
+			 else if(sText == "切换"){
+                if( application.oJSipCtrl.Transfer(sDestNum)== 0)
+                    showLog("Transfer\r\n");
+                else
+                    showLog("Transfer失败\r\n");
+            }
+			else if(sText == "音视频切换"){
+                if( application.oJSipCtrl.UpdateMedia(sDestNum)== 0)
+                    showLog("UpdateMedia\r\n");
+                else
+                    showLog("UpdateMedia失败\r\n");
+            }
+        },
+
+        funMute: function () {
+            this.mute =  (this.mute)?0:1;
+            if( application.oJSipCtrl.Mute(this.mute)== 0)
+                showLog("Mute\r\n");
+            else
+                showLog("Mute失败\r\n");
+        },
+        funHold: function () {
+            if(this.hold == 0){
+                if( application.oJSipCtrl.Hold()== 0)
+                    showLog("Hold\r\n");
+                else
+                    showLog("Mute失败\r\n");
+            }
+            else{
+                if( application.oJSipCtrl.RetriveHold()== 0)
+                    showLog("RetriveHold\r\n");
+                else
+                    showLog("RetriveHold失败\r\n");            }
+            this.hold =  (this.hold)?0:1;
+        },
+        funTransfer: function () {
+            if( application.oJSipCtrl.Transfer("")== 0)
+                showLog("Transfer\r\n");
+            else
+                showLog("Transfer失败\r\n");
+        },
+        funAlertnate: function () {
+            if( application.oJSipCtrl.Alertnate("")== 0)
+                showLog("Alertnate\r\n");
+            else
+                showLog("Alertnate失败\r\n");
+        },
+        funConference: function () {
+            if( application.oJSipCtrl.Conference()== 0)
+                showLog("Conference\r\n");
+            else
+                showLog("Conference失败\r\n");
+        },
+        emptyLog: function () {
+            var oTextareaInfo= document.getElementById("TextareaInfo");
+            if(oTextareaInfo != null)
+                oTextareaInfo.value = "";
+        }
+    };
+
+    function shareSreen(type){
+	var options = {};
+      if(type == 0)
+      {
+          options.mic = 1;
+          options.width = 1920;
+         options.height = 1080;
+		options.source = LocalVideoSrc.Screen;
+      }
+      else{
+        options.source = LocalVideoSrc.Camera;
+      }
+        application.oJSipCtrl.ShareScreen(options);
+    }
+    function SnapShot(){
+      var image = application.oJSipCtrl.GetVideoSnapShot();
+      if(image != null){
+        recvPic.src = image;
+        G_oSipPhone.DisplayDiv("divPicDlg",1);
+        console.info(image);
+      }
+    }
+
+    function window_onload() {
+		var param = "ip|443|15900000003|00000000|acd";
+        param = "xylink.cincc.cn|443|15900000003|00000000|acd";
+
+	    var oParam = param.split("|");
+	    sipServer.value = oParam[0];
+	    sipPort.value = oParam[1];
+	    sipDn.value = oParam[2];
+	    sipPassword.value = oParam[3];
+        XPath.value = oParam[4];
+        G_oSipPhone.InitUI();
+        G_oSipPhone.DisplayStatus("尚未注册");
+
+        GetMediaDevices(function(devices){
+            for (var i = 0; i !== devices.length; ++i)
+            {
+                const deviceInfo = devices[i];
+                const option = document.createElement('option');
+                option.value = deviceInfo.deviceId;
+                option.text = deviceInfo.label
+                oCameraDevices.appendChild(option);
+            }
+        })
+	}
+
+
+	function sipCallBackEvent() {
+		application.oJSipCtrl.OnRing = OnSipEventOnRing;
+		application.oJSipCtrl.OnOrigated = OnSipEventOnOrigated;
+		application.oJSipCtrl.OnDisconnected = OnSipEventOnDisconnected;
+		application.oJSipCtrl.OnConnected = OnSipEventOnConnected;		
+		application.oJSipCtrl.OnError = OnSipEventOnError;
+		application.oJSipCtrl.OnLoginSuccess = OnSipEventOnLoginSuccess;
+		application.oJSipCtrl.OnLoginFailure = OnSipEventOnLoginFailure;
+		application.oJSipCtrl.OnLogoutSuccess = OnSipEventOnLogoutSuccess;
+		application.oJSipCtrl.OnDebug = OnSipEventDebug;
+		 application.oJSipCtrl.OnConnectStatus = OnSipEventOnConnectStatus;
+        application.oJSipCtrl.OnMediaChanged = OnSipEventOnMediaChanged;
+        application.oJSipCtrl.OnReportScense = OnSipEventOnReportScense;
+        application.oJSipCtrl.OnUpdateVideoWindow = OnSipEventOnUpdateVideoWindow;
+		application.OnDebug = onOnDebug;
+
+		application.DislayProtocol(0);
+        showLog("---- 当前版本：【"+application.oJSipCtrl.GetVersion()+"】----\r\n");
+        showLog("---- 当前SipType：【sipAdapterTypeJSip("+application.GetSipType()+")】----\r\n");
+        showLog("------------0:sipAdapterTypeJSip   1:sipAdapterTypeRemoteSip  2:sipAdapterTypeRemoteHttpSip----\r\n");
+        showLog("*******************************************************************\r\n\r\n");
+
+        G_oSipPhone.realSipType = application.GetSipType();
+        G_oSipPhone.funDoSetting();
+        if(application.oJSipCtrl.Initial(!G_oSipPhone.autoRegister) == 0){
+          G_oSipPhone.DisplayStatus("初始化...");
+            var options = { width: parseInt(resolutionWidth.value),
+                height:parseInt(resolutionHeight.value)
+            };
+ 		   if(oCameraDevices.options.length>0){
+				options.videosource = oCameraDevices.options[oCameraDevices.options.selectedIndex].value;
+			}
+
+            console.info(options);
+            application.oJSipCtrl.Configurate(options);
+            if(G_oSipPhone.autoRegister == 1)
+            {
+                application.oJSipCtrl.RegisterPA();
+                G_oSipPhone.DisplayStatus("正在注册...");
+            }
+            else{
+                G_oSipPhone.UpdateBtnByID("btnDoCall",1);
+            }
+        }
+        else
+          G_oSipPhone.DisplayStatus("初始化失败");
+	}
+	
+    function onOnDebug(Text) {
+        showLog(Text+"\r\n");
+		console.info(Text);
+    }
+
+    function OnSipEventOnRing(url) {
+        G_oSipPhone.DisplayStatus("来电【"+url+"】");
+        G_oSipPhone.SetSipCallStatus(SipCallSence.SIPCALL_RING,url);
+        showLog("【OnRing】： url:【"+url+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnOrigated(url) {
+        G_oSipPhone.DisplayStatus("外呼中,对方振铃.....");
+        G_oSipPhone.SetSipCallStatus(SipCallSence.SIPCALL_ORIGATE,url);
+        showLog("【OnOrigated】： url:【"+url+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnDisconnected() {
+        G_oSipPhone.DisplayStatus("呼叫结束");
+        G_oSipPhone.SetSipCallStatus(SipCallSence.SIPCALL_IDLE);
+        showLog("【OnDisconnected】： \r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnConnected(sType) {
+        G_oSipPhone.SetSipCallStatus(SipCallSence.SIPCALL_CONNECTED);
+        G_oSipPhone.DisplayStatus("呼叫接通");
+        showLog("【OnConnected】： sType:【"+sType+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnError(errorCode,errorDes) {
+        G_oSipPhone.DisplayStatus("Error:("+errorCode+")"+errorDes);
+        showLog("【OnError】： errorCode:【"+errorCode+"】 errorDes:【"+errorDes+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+
+    function OnSipEventOnLoginSuccess() {
+        G_oSipPhone.SetSipRegisterStatus(1);
+        G_oSipPhone.DisplayStatus("注册成功!");
+        showLog("【OnLoginSuccess】： \r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnLoginFailure(code,des) {
+        G_oSipPhone.SetSipRegisterStatus(0);
+        G_oSipPhone.DisplayStatus("注册失败【code:" + code +" des:"+des+"】");
+        showLog("【OnLoginFailure】：【code:" + code +" des:"+des+"】 \r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnSipEventOnLogoutSuccess() {
+        G_oSipPhone.SetSipRegisterStatus(-1);
+        G_oSipPhone.DisplayStatus("注销成功!");
+        showLog("【OnLogoutSuccess】： \r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+	    function OnSipEventOnConnectStatus(flag){
+        if(flag == false)
+            G_oSipPhone.SetSipRegisterStatus(-1);
+        G_oSipPhone.DisplayStatus(flag?"初始化成功":"网络断开");
+        showLog("【OnConnectStatus】： flag:【"+flag+"】\r\n");
+        showLog(" ***************************\r\n");
+    }
+    function OnSipEventOnMediaChanged(msg){
+        showLog("【OnMediaChanged】： msg:【"+JSON.stringify(msg)+"】\r\n");
+        showLog(" ***************************\r\n");
+    }
+    function OnSipEventDebug(msg) {
+        showLog("【OnSipDebug】： msg:【"+msg+"】\r\n");
+        showLog(" ***************************\r\n");
+    }
+    function OnSipEventOnReportScense(callInfo) {
+        showLog("【OnSipEventOnReportScense】： ScenseName:【"+callInfo.ScenseName+"】\r\n");
+        showLog("  callInfo:【"+callInfo.CallSegments.join("#")+"】\r\n");
+        G_oSipPhone.SetCallScenseInfo(callInfo);
+    }
+    function OnSipEventOnUpdateVideoWindow(param){
+      console.info(param);
+      if(param.key_word == "GetVideoViews"){
+        G_oSipPhone.DisplayDiv('divVedioDlg',true);
+        param.param.SetVideoViews("local_stream","remote_stream","share_stream");
+        console.info(document.getElementById('remote_stream'));
+      }
+      else if(param.key_word == "OnJoinFailure"){
+
+      }
+      else if(param.key_word == "OnGetLocalView"){
+        //return "local_stream";
+        G_oSipPhone.DisplayDiv(param.param,true);
+        showLog(JSON.stringify(param)+"\r\n");
+      }
+      else if(param.key_word == "OnGetShareView"){
+        G_oSipPhone.DisplayDiv(param.param,true);
+      }
+      else if(param.key_word == "OnGetRemoteView"){
+        G_oSipPhone.DisplayDiv(param.param,true);
+        showLog(JSON.stringify(param)+"\r\n");
+      }
+      else if(param.key_word == "OnRemoveRemoteView"){
+        var oRemoteView = document.getElementById(param.param);
+        if(oRemoteView == null)
+          return;
+        oRemoteView.innerHTML = "";
+      }
+      else if(param.key == "OnLeaveSuccess"){
+        G_oSipPhone.DisplayDiv('divVedioDlg',false);
+      }
+    }
+
+    function showLog(Text) {
+        var oTextareaInfo= document.getElementById("TextareaInfo");
+        if(oTextareaInfo != null)
+            oTextareaInfo.value = oTextareaInfo.value + Text;
+    }
+    function showLog2(Text) {
+        var oTextareaInfo= document.getElementById("TextareaInfo");
+        if(oTextareaInfo != null){
+            var strText = "";
+            if(Text.length == 6){
+                strText = Text[0];
+                strText = strText.replace(/%s/,Text[3]);
+                strText = strText.replace(/%s/,Text[4]);
+            }
+            else{
+                strText = Text[0];
+
+            }
+            strText = strText.replace(/%c/g,"");
+
+            oTextareaInfo.value = oTextareaInfo.value + strText+"\r\n";
+        }
+    }
+    function getCookie(c_name){
+        if(document.cookie.length > 0) {
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1)
+                    c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start, c_end));
+            }
+        }
+        return "";
+    }
+    function setCookie(c_name, value, expiredays){
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + expiredays);
+        var str = c_name+ "=" + escape(value) + ((expiredays==null) ? "":";expires="+exdate.toGMTString());
+        document.cookie = str;
+    }
+    function getCookieIntValue(sName,defaultValue){
+        var strValue = getCookie(sName);
+        if(strValue == "")
+            return defaultValue;
+        return parseInt(strValue);
+    }
+    function getCookieStrValue(sName,defaultValue){
+        var strValue = getCookie(sName);
+        if(strValue == "")
+            return defaultValue;
+        return strValue;
+    }
+    function IsCookiesUsed(){
+        return (document.cookie.length > 0);
+    }
+    function trimStr(str){
+        return str.replace(/(^\s*)|(\s*$)/g,"");
+    }
+    function stringFormat(){
+        if (arguments.length == 0)
+            return "";
+        var str = arguments[0];
+        for (var i = 1; i < arguments.length; i++) {
+            var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
+            str = str.replace(re, arguments[i]);
+        }
+        return str;
+    }
+ </script>

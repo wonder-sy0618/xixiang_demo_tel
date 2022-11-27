@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>监控-pure js</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/icon.css">
+    <script src="jquery-easyui-1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="jquery-easyui-1.4/jquery.easyui.min.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="scripts/ui/css/monitor.css">
+
+    <script src="scripts/jssip.min.js" type="text/javascript"></script>
+    <script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+    <script src="scripts/ui/jbardisplay.js" type="text/javascript"></script>
+    <script src="scripts/ui/jhtmlmonitor.js" type="text/javascript"></script>
+
+    <script src="jbarextent.js" type="text/javascript"></script>
+
+</head>
+<body onload="window_onload();">
+       <DIV style='position:absolute;border:0px solid #ff3900; left:10px;top:45px;'>
+        &nbsp;服务器: <input type="text" id="mainIP" value="192.168.2.136"size="10"  />
+        集团号: <input type="text" id="vccID" size="12" value="958888"  />
+		工号: <input type="text" id="agentID" value="2000" size="12"  />
+        密码: <input type="text" id="agentPassWord" value="00000000" size="12"  />
+		sip端口: <input type="text" id="sipPort" value="5049" size="8"  />
+        sip密码: <input type="text" id="sipPassWord" value="00000000" size="12"  />
+         XPath: <input type="text" id="xPath" value="acd" size="6"  />
+        <input id='btnInitial' type="button" onclick='funInitial();'  value="初始化" title="执行方法:Initial()" />
+        <input id='btnUnInitial' type="button" onclick='application.oJVccBar.UnInitial();' value="注销" title="执行方法:UnInitial()" />
+		<input id='btnEmpty' type="button" onclick='emptyLog();' value="清空日志" title="执行方法:emptyLog()" />
+
+        <br>
+           参数: <INPUT type="text" id="DestNum" NAME="DestNum" size="10" title="变量名称:DestNum">
+           <input id='btnInitial1' type="button" onclick='application.oJMonitorData.Initial();'  value="Initial" title="执行方法:Initial()" />
+           <input id='btnloadAgentGroupData' type="button" onclick='application.oJMonitorData.loadAgentGroupData(DestNum.value);'  value="loadAgentGroupData" title="执行方法:loadAgentGroupData()" />
+           <input id='btnloadAgentGroupAllData' type="button" onclick='application.oJMonitorData.loadAgentGroupData(DestNum.value,true);'  value="loadAgentGroupAllData" title="执行方法:loadAgentGroupAllData()" />
+           <input id='btnloadServiceGroupData' type="button" onclick='application.oJMonitorData.loadServiceGroupData();'  value="loadServiceGroupData" title="执行方法:loadServiceGroupData()" />
+           <input id='btnloadIvrGroupData' type="button" onclick='application.oJMonitorData.loadIvrGroupData();'  value="loadIvrGroupData" title="执行方法:loadIvrGroupData()" />
+           <input id='btnloadTrunkGroupData' type="button" onclick='application.oJMonitorData.loadTrunkGroupData();'  value="loadTrunkGroupData" title="执行方法:loadTrunkGroupData()" />
+           <input id='btnloadTaskGroupData' type="button" onclick='application.oJMonitorData.loadTaskGroupData();'  value="loadTaskGroupData" title="执行方法:loadTaskGroupData()" />
+
+		</DIV>
+        <DIV id="divTextInfo" style='position:absolute;border:0px solid #00ff00; background-color: #4d4d4d left:10px;top:95px;'>
+		<TEXTAREA id="TextareaInfo" name="TextareaInfo" rows="36" cols="160" value="" style="overflow:auto;font-family:verdana;font-size:12px"></TEXTAREA>
+		</DIV>
+</body>
+</html>
+ <script type="text/javascript">   
+    var _display = 1;
+	function window_onload(){
+		applicationUILoad(10,10,1000,40,"");
+        applicationLoad("",setVccBarMonitorEvent);
+	}
+	function setVccBarMonitorEvent(){
+        var param = "|||5049|||sbc";
+
+        var oParam = param.split("|"); 
+        mainIP.value = oParam[0];
+        vccID.value = oParam[1];
+        agentID.value = oParam[2];
+        sipPort.value = oParam[3];
+        sipPassWord.value = oParam[4];
+        agentPassWord.value = oParam[5];
+        xPath.value = oParam[6];
+	    //3
+		application.oJVccBar.OnCallRing = onOnCallRing;
+		application.oJVccBar.AnswerCall = onOnAnswerCall;
+		application.oJVccBar.OnCallEnd = onOnCallEnd;
+		//18
+		application.oJVccBar.OnPrompt = onOnPrompt;
+		application.oJVccBar.OnReportBtnStatus = onReportBtnStatus;
+		application.oJVccBar.OnInitalSuccess = onOnInitalSuccess;
+		application.oJVccBar.OnInitalFailure = onOnInitalFailure;
+		application.oJVccBar.OnEventPrompt = onOnEventPrompt;
+		application.oJVccBar.OnAgentWorkReport = onOnAgentWorkReport;
+		application.oJVccBar.OnCallDataChanged = onOnCallDataChanged;
+		application.oJVccBar.OnBarExit = onOnBarExit;
+	    application.oJVccBar.OnCallQueueQuery = onOnCallQueueQuery;
+		application.oJVccBar.OnQueryGroupAgentStatus = onOnQueryGroupAgentStatus;
+		application.oJVccBar.OnSystemMessage  = onOnSystemMessage;
+		application.oJVccBar.OnRecvWeiboMsg = onOnRecvWeiboMsg;
+		application.oJVccBar.OnIMMessage = onOnIMMessage
+		application.OnDebug = function (msg) {
+          //console.info(msg);
+          showLog(msg+"\r\n");
+        };
+		application.DislayLog(16,1);
+
+		application.oJBarDisplayer = appVccBar;
+		//application.oJVccBar.OnMethodResponseEvent = onOnMethodResponseEvent;
+		
+		showLog(application.oBrowserSys.expression+"\r\n\r\n");
+		displayCtrl();
+
+        application.oJMonitorData = new JcmMonitorManager(application.oJVccBar);
+
+        application.oJMonitorData.OnSetAgentWorkReport = OnMDataSetAgentWorkReport;
+        application.oJMonitorData.OnSetReportBtnStatus = OnMDataSetReportBtnStatus;
+
+        application.oJMonitorData.OnInitialState = OnMDataInitialState;
+
+        application.oJMonitorData.OnAgentGroupQuery = OnMDataAgentGroupQuery;
+        application.oJMonitorData.OnAgentGroupQueryPage = OnMDataAgentGroupQueryPage;
+        application.oJMonitorData.OnAgentReport = OnMDataAgentReport;
+        application.oJMonitorData.OnAgentStaticReport = OnMDataAgentStaticReport;
+
+        application.oJMonitorData.OnTaskReport = OnMDataTaskReport;
+
+        application.oJMonitorData.OnWallServiceReport = OnMDataWallServiceReport;
+        application.oJMonitorData.OnWallQueueReport = OnMDataWallQueueReport;
+
+        application.oJMonitorData.OnIvrReport = OnMDataIvrReport;
+
+        application.oJMonitorData.OnTrunkReport = OnMDataTrunkReport;
+        application.oJMonitorData.OnTrunkSumReport = OnMDataTrunkSumReport;
+
+        application.oJMonitorData.ConStatusChange = OnMDataConStatusChange;
+
+	}
+
+    function CheckVccBarXPath(){
+        var ctiPort = application.oJVccBar.GetAttribute("MainPortID");
+        var monitorPort = application.oJVccBar.GetAttribute("MainPortID");
+
+        if(ctiPort == 5049 || ctiPort == 14900)
+            application.oJVccBar.SetAttribute("CtiXPath", "cti");
+        else
+            application.oJVccBar.SetAttribute("CtiXPath", "");
+        if(monitorPort == 5049 || monitorPort == 14900)
+            application.oJVccBar.SetAttribute("MonitorXPath", "monitor");
+        else
+            application.oJVccBar.SetAttribute("MonitorXPath", "");
+    }
+
+
+	function funInitial(){
+	    var  serverIP = document.getElementById("mainIP").value;
+	    var  vccID = document.getElementById("vccID").value;
+	    var  agentID  = document.getElementById("agentID").value;
+	    var  sipPort = document.getElementById("sipPort").value;
+        application.oJVccBar.SetAttribute("MainIP",serverIP);  //MainIP
+        application.oJVccBar.SetAttribute("MainPortID",5049);  //MainPort
+        application.oJVccBar.SetAttribute("BackIP",serverIP);  //BackIP
+        application.oJVccBar.SetAttribute("BackPortID",5049);  //BackPort
+        application.oJVccBar.SetAttribute("MonitorIP",serverIP);  //MonitorIP
+        application.oJVccBar.SetAttribute("MonitorPort",5049);  //MainPort
+        application.oJVccBar.SetAttribute("SipServerIP",serverIP);
+        application.oJVccBar.SetAttribute("SipServerPort",parseInt(sipPort));
+        application.oJVccBar.SetAttribute("SipProtocol","wss");
+        application.oJVccBar.SetAttribute("PhonType",1);  //0:内置坐席卡；1：内置Sip；2：外置其他终端
+        application.oJVccBar.SetAttribute("SipXPath", xPath.value);
+        application.oJVccBar.SetAttribute("AgentType",1);
+        application.oJVccBar.SetAttribute("SelfPrompt",0);
+        application.oJVccBar.SetAttribute("MediaFlag",vccID);
+        application.oJVccBar.SetAttribute("AppType",2);
+        application.oJVccBar.SetAttribute("PassWord",agentPassWord.value);
+        application.oJVccBar.SetAttribute("AgentID","000010"+vccID+agentID);
+        application.oJVccBar.SetAttribute("Dn","000002"+vccID+agentID);
+		application.oJVccBar.SetAttribute("SipPassWord", sipPassWord.value);
+		application.oJVccBar.SetAttribute("SipAuthType", 1); //1 2
+		application.oJVccBar.SetAttribute("VersionType",0); //0:企业版 1:教育版
+		application.oJVccBar.SetAttribute("ProtocolType",1);
+
+
+        CheckVccBarXPath();
+
+        application.oJVccBar.SerialBtn("0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,19,20,21,22,30","7,8,10,11,12,13")
+
+        application.oJVccBar.Initial();
+        
+	}
+
+
+	//Event
+    function OnMDataSetAgentWorkReport(btnIds,agentStatus){
+        showLog("【OnSetAgentWorkReport】\r\n 【btnIds:"+btnIds+"】 【agentStatus:"+agentStatus+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+    function OnMDataSetReportBtnStatus(agentID,agentStatus,workStatus){
+        showLog("【OnSetReportBtnStatus】\r\n 【agentID:"+agentID+"】 【agentStatus:"+agentStatus+"】【workStatus:"+workStatus+"】\r\n");
+        showLog(" *******************************************************************\r\n");
+    }
+
+    function OnMDataInitialState(oGroups){
+        showLog("【OnInitialState】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroups);
+    }
+
+    function OnMDataAgentGroupQuery(oGroup){
+        showLog("【OnAgentGroupQuery】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+        var o = G_MonitorExtension.GetAgentGroupTableJSonData(oGroup,0,-1);
+        showLog(o);
+        console.log(o);
+    }
+    function OnMDataAgentGroupQueryPage(oGroup){
+      showLog("【OnAgentGroupQuery】\r\n ");
+      showLog(stringFormat("加载50完毕：监控组：ID:{0} name:{1} Type:{2}\r\n",oGroup._monitorid,oGroup._name,oGroup._ampGroupType));
+
+      showLog("响应JSON：\r\n"+G_MonitorExtension.GetAgentGroupTableJSonData(oGroup,0,50));
+      showLog("\r\n*******************************************************************\r\n");
+    }
+    function OnMDataAgentReport(oAgentItem){
+        showLog("【OnAgentReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oAgentItem);
+    }
+    function OnMDataAgentStaticReport(oAgentItem){
+        showLog("【OnAgentStaticReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oAgentItem);
+    }
+
+    function OnMDataTaskReport(oGroup){
+        showLog("【OnTaskReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+
+    function OnMDataWallServiceReport(oGroup){
+        showLog("【OnWallServiceReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+    function OnMDataWallQueueReport(oGroup){
+        showLog("【OnWallQueueReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+
+    function OnMDataIvrReport(oGroup){
+        showLog("【OnIvrReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+
+    function OnMDataTrunkReport(oGroup){
+        showLog("【OnTrunkReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+    function OnMDataTrunkSumReport(oGroup){
+        showLog("【OnTrunkSumReport】\r\n ");
+        showLog(" *******************************************************************\r\n");
+        console.log(oGroup);
+    }
+
+    function OnMDataConStatusChange(status){
+        showLog("【OnConStatusChange】 【status"+status+"】\r\n ");
+        showLog(" *******************************************************************\r\n");
+    }
+
+	
+</script>

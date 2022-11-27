@@ -1,0 +1,254 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <title>座席日志</title>
+
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/icon.css">
+	<script src="jquery-easyui-1.4/jquery.min.js" type="text/javascript"></script>
+	<script src="jquery-easyui-1.4/jquery.easyui.min.js" type="text/javascript"></script>
+
+
+	<script src="scripts/jssip.min.js" type="text/javascript"></script>
+	<script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+
+	<script src="scripts/ui/jbardisplay.js" type="text/javascript"></script>
+
+	<script src="jbarextent.js" type="text/javascript"></script>
+	
+	<style> BODY { FONT-FAMILY: "Verdana"; FONT-SIZE: 12px; SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff; SCROLLBAR-SHADOW-COLOR: #828282; SCROLLBAR-3DLIGHT-COLOR: #828282; SCROLLBAR-ARROW-COLOR: #797979; SCROLLBAR-TRACK-COLOR: #ffffff; SCROLLBAR-FACE-COLOR: #66b7ef; SCROLLBAR-DARKSHADOW-COLOR: #ffffff }
+	</style>
+ </head>
+<body onload="window_onload();" >
+		<DIV style='position:absolute;border:0px solid #ff3900; left:10px;top:45px;'>
+			&nbsp;服务器: <input type="text" id="mainIP" value="192.168.2.136"size="20"  />
+			集团号: <input type="text" id="vccID" size="8" value="100004"  />
+			工号: <input type="text" id="agentID" value="6301" size="8"  />
+			端口&nbsp;: <input type="text" id="sipPort" value="5066" size="8"  />
+			sip密码&nbsp;&nbsp;: <input type="text" id="sipPassword" value="00000000" size="12"  />
+			座席密码: <input type="text" id="agnetPassword" value="111111" size="10"  />
+			LogXPath:<input type="text" id="logXPath" value="wxupload" size="10"  />
+
+			<input id='btnInitial' type="button" onclick='funInitial();'  value="初始化" title="执行方法:Initial()" />
+			<input id='btnUnInitial' type="button" onclick='application.oJVccBar.UnInitial();' value="注销" title="执行方法:UnInitial()" />
+		</DIV>
+		<DIV style='position:absolute;border:0px solid #ff3900; left:12px;top:70px;'>
+			日志目标工号(长号):&nbsp;&nbsp;&nbsp;&nbsp;<INPUT type="text" id="DestAgent" NAME="DestAgent" size="60" title="变量名称:DestAgent">
+			日志级别:<label><input id="log_error" type="checkbox" value="0" onclick="SetLogType();"/>致命错误 </label>
+			<label><input id="log_warn" type="checkbox" value="0" onclick="SetLogType();"/>警告信息 </label>
+			<label><input id="log_info" type="checkbox" value="0" onclick="SetLogType();"/>提示消息 </label>
+			<label><input id="log_debug" type="checkbox" value="0" onclick="SetLogType();"/>调试信息</label>
+			<label><input id="log_protocal" type="checkbox" value="0" onclick="SetLogType();"/>协议信息 </label>
+
+			<label><input id="log_console" type="checkbox" value="0" onclick="SetLogType();"/>sip日志 </label>
+			<br>
+			日志目标地址(带端口):&nbsp;<INPUT type="text" id="DestServer" NAME="DestServer"  size="60"  title="变量名称:DestServer" >
+			<input id='btnUnload' type="button" onclick="getAgentLog();" type="button" value="上传日志"  title="执行: getAgentLog();" />
+			<input id='btnSaveLog' type="button" onclick="application.SaveLog('');" value="保存日志" title="保存日志;" />
+			<input id='btnChechJSP' type="button" onclick="checkUrl();" value="测试上传URL是否部署" title="测试上传URL是否可用，出错表示部署有问题;" />
+			<input id='btnEmpty' type="button" onclick="emptyLog();" value="清空日志" title="执行清空日志;" />
+			<br>
+			说明：	 <li>上传文件到目标地址9999/media/log/集团号/之下</li>
+			         <li>默认为空</li>
+			         <li>目标地址可以使用如ip:5049这样地址,也可以使用全路径:ip/LogXPath/uploadCtiLog.jsp；</li>
+		</DIV>
+		<div class="divframe" id="divVedioDlg" style="position:absolute;top:180px;left:925px;width:400px;height:370px;background:#CCE6FF;color:#333;display: none;">
+			<div id="divVedioWindow" class="divStatus" style="margin-left:2px;margin-top:2px;padding-top: 10px;width:380px;height:357px;background:#99cdff;color:#333;" >
+				&nbsp;&nbsp;&nbsp;视频窗口:
+				<div id="agent_webcam" style="cursor: move; position: relative; border: 2px solid rgb(70, 163, 255); border-radius: 10px; left: 10px; top: 5px; width: 360px; height: 300px; background: rgb(130, 130, 130); display: block;">
+					<div id="agent_remoteView" class="remoteView" ></div>
+					<div id="agent_selfView" class="selfView" ></div>
+				</div>
+				<div style="position: relative;left: 12px; top: 10px;  " >
+					<input id="btnShareScreen" onclick="shareSreen(0);" type="button" value="屏幕共享" >
+					<input id="btnShareCanvas" onclick="shareSreen(2);" type="button" value="canvas共享" >
+					<input id="btnSnapShot" onclick="SnapShot();" type="button" value="远程快照" >
+					<input id="btnShareFile" onclick="videoExchange();" type="button" value="视频切换" >
+				</div>
+			</div>
+		</div>
+        <DIV style='position:absolute;border:0px solid #00ff00; left:10px;top:190px;'>
+		<TEXTAREA id="TextareaInfo" name="TextareaInfo" rows="28" cols="160" value="" style="overflow:auto;font-family:verdana;font-size:12px"></TEXTAREA>
+		</DIV>
+
+</body>
+   <script type="text/javascript">
+   	function funInitial()
+	{
+	    var  serverIP = document.getElementById("mainIP").value;
+	    var  vccID = document.getElementById("vccID").value;
+	    var  agentID  = document.getElementById("agentID").value;
+		var  sipPort = document.getElementById("sipPort").value;
+		var  sipPassword = document.getElementById("sipPassword").value;
+        var  agnetPassword = document.getElementById("agnetPassword").value;
+        var  logXPath = document.getElementById("logXPath").value;
+
+        application.oJVccBar.SetAttribute("MainIP",serverIP);  //MainIP
+        application.oJVccBar.SetAttribute("MainPortID",parseInt(sipPort));  //MainPort
+        application.oJVccBar.SetAttribute("BackIP",serverIP);  //BackIP
+        application.oJVccBar.SetAttribute("BackPortID",parseInt(sipPort));  //BackPort
+        application.oJVccBar.SetAttribute("MonitorIP",serverIP);  //MonitorIP
+        application.oJVccBar.SetAttribute("MonitorPort",parseInt(sipPort));  //MainPort
+        application.oJVccBar.SetAttribute("SipServerIP",serverIP);
+		application.oJVccBar.SetAttribute("SipServerPort",parseInt(sipPort));
+        application.oJVccBar.SetAttribute("SipProtocol","wss");
+        application.oJVccBar.SetAttribute("PhonType",2);  //0:内置坐席卡；1：内置Sip；2：外置其他终端
+        application.oJVccBar.SetAttribute("AgentType",1);
+        application.oJVccBar.SetAttribute("SelfPrompt",0);
+        application.oJVccBar.SetAttribute("MediaFlag",vccID);
+        application.oJVccBar.SetAttribute("AppType",0);
+        application.oJVccBar.SetAttribute("PassWord",agnetPassword);
+        application.oJVccBar.SetAttribute("AgentID","000010"+vccID+agentID);
+        application.oJVccBar.SetAttribute("Dn", "000002" + vccID + agentID);
+		application.oJVccBar.SetAttribute("SipPassWord", sipPassword);
+        application.oJVccBar.SetAttribute("ProtocolType",1);
+        application.oJVccBar.SetAttribute('TransportType',0);
+        application.oJVccBar.SetAttribute("LogXPath",logXPath);
+
+        CheckVccBarXPath();
+        application.oJBarDisplayer = appVccBar;
+
+        application.oJVccBar.Initial();
+		DestServer.value = getuploadurl();
+
+	}
+    function CheckVccBarXPath(){
+        var ctiPort = application.oJVccBar.GetAttribute("MainPortID");
+        var monitorPort = application.oJVccBar.GetAttribute("MainPortID");
+
+        if(ctiPort == 5049 || ctiPort == 14900 || ctiPort == 17004|| ctiPort == 443)
+            application.oJVccBar.SetAttribute("CtiXPath", "cti");
+        else
+            application.oJVccBar.SetAttribute("CtiXPath", "");
+        if(monitorPort == 5049 || monitorPort == 14900 || ctiPort == 443)
+            application.oJVccBar.SetAttribute("MonitorXPath", "monitor");
+        else
+            application.oJVccBar.SetAttribute("MonitorXPath", "");
+
+      application.oJVccBar.SetAttribute("CtiXPath", "cti");
+      application.oJVccBar.SetAttribute("MonitorXPath", "monitor");
+    }
+
+	function window_onload()
+	{
+	    if(document.readyState=="complete")
+	    {
+			var param = "|||5049|||sbc";
+
+			var oParam = param.split("|");
+			mainIP.value = oParam[0];
+			vccID.value = oParam[1];
+			agentID.value = oParam[2];
+			sipPort.value = oParam[3];
+            sipPassword.value = oParam[4];
+            agnetPassword.value = oParam[5];
+
+            applicationUILoad(10,10,1100,40,"");
+            applicationLoad("",OnAfterVccBarCreate,"");
+	    }
+	}
+	
+	//创建对象成功，绑定电话条事件
+	function OnAfterVccBarCreate()
+	{ 
+	    //3
+		application.oJVccBar.OnCallRing = onOnCallRing;
+		application.oJVccBar.AnswerCall = onOnAnswerCall;
+		application.oJVccBar.OnCallEnd = onOnCallEnd;
+		//18
+		application.oJVccBar.OnPrompt = onOnPrompt;
+		application.oJVccBar.OnReportBtnStatus = onReportBtnStatus;
+		application.oJVccBar.OnInitalSuccess = onOnInitalSuccess;
+		application.oJVccBar.OnInitalFailure = onOnInitalFailure;
+		application.oJVccBar.OnEventPrompt = onOnEventPrompt;
+		application.oJVccBar.OnAgentWorkReport = onOnAgentWorkReport;
+		application.oJVccBar.OnCallDataChanged = onOnCallDataChanged;
+		application.oJVccBar.OnBarExit = onOnBarExit;
+	    application.oJVccBar.OnCallQueueQuery = onOnCallQueueQuery;
+		application.oJVccBar.OnQueryGroupAgentStatus = onOnQueryGroupAgentStatus;
+		application.oJVccBar.OnSystemMessage  = onOnSystemMessage;
+		application.oJVccBar.OnAgentLogUpload  = OnAgentLogUpload;
+		application.oJVccBar.OnUpdateVideoWindow = onOnUpdateVideoWindow;
+
+		application.oJVccBar.OnMethodResponseEvent = OnMethodResponseEvent;
+        application.OnDebug = onOnDebug;
+
+        application.DislayLog(16,0);
+		
+	}
+	function OnMethodResponseEvent(cmdName,param)
+	{
+		showLog("【OnMethodResponseEvent】：\r\n");
+		showLog(" cmdName:【"+cmdName+"】\r\n");
+		showLog(" return param:【"+param+"】\r\n");
+		if(cmdName == "GetAgentLogFile" ){
+			if(param =="2100")
+				showLog("服务器版本不支持日志抓取!\r\n");
+			if(param =="2110")
+				showLog("座席不存在!\r\n");
+			if(param =="2121")
+				showLog("座席未登录!\r\n");
+			if(param =="2101")
+				showLog("消息参数异常!\r\n");
+		}
+		showLog(" *******************************************************************\r\n");
+	}
+	function OnAgentLogUpload(destAgent,urlType,uploadServer,fileName,code,des){
+		showLog("【OnAgentLogUpload】 \r\n urlType:【"+urlType+"】\r\n");
+		showLog(" uploadServer:【"+uploadServer+"】\r\n");
+		showLog(" fileName:【"+fileName+"】\r\n");
+
+		var bUpload = false;
+		if(urlType == 1 && code == "1" )
+			bUpload = true;
+		if(urlType == 0 && parseInt(code)>0 && des == "201 Created")
+			bUpload = true;
+
+		if(bUpload)
+		{
+			var serverIP = getSubString(uploadServer,"",":");
+			var vccid = getSubString(fileName,"000010","");
+			vccid = vccid.substr(0,6);
+			var fullFilePath = stringFormat("http://{0}:9999/media/log/{1}/{2}",serverIP,vccid,fileName);
+			if(urlType == 0)
+				fullFilePath = stringFormat("http://{0}:9999/media/000000/{1}",serverIP,fileName);
+			showLog(" 上传成功,文件目录:【"+fullFilePath+"】\r\n");
+		}
+		else
+		{
+			showLog(" 上传失败错误信息:code:【"+code+"】 des:【"+des+"】\r\n");
+		}
+		showLog(" *******************************************************************\r\n");
+	}
+
+	function getuploadurl(){
+		var  sipPort = document.getElementById("sipPort").value;
+		var  logXPath = document.getElementById("logXPath").value;
+		var URL = "";//https://"+DestServer.value+"/"+logXPath.value+"/uploadCtiLog.jsp";
+		if(DestServer.value == "")
+		{
+			if(sipPort == "443")
+				URL = mainIP.value+"/"+logXPath+"/uploadCtiLog.jsp";
+			else
+				URL = mainIP.value+":"+sipPort+"/"+logXPath+"/uploadCtiLog.jsp";
+		}
+		else if(DestServer.valueOf("uploadCtiLog.jsp"))
+			URL = DestServer.value;
+		return URL;
+	}
+    function checkUrl() {
+   		var url = "https://"+getuploadurl();
+		window.open (url);
+	}
+    function getAgentLog(){
+        var agentID = trimStr(DestAgent.value);
+        if(agentID.length<6)
+            agentID = "000010"+vccID.value+agentID;
+        application.oJVccBar.GetAgentLogFile(agentID,DestServer.value,1);
+    }
+
+   </script>
+
+</html>
+

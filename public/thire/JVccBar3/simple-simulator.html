@@ -1,0 +1,116 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+    <title>座席模拟器</title>
+
+	<script src="scripts/jssip.min.js" type="text/javascript"></script>
+	<script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+    <script src="scripts/ui/jhtmlmonitor.js" type="text/javascript"></script>
+
+    <script src="jsimulator.js" type="text/javascript"></script>
+
+	<style>
+        BODY { FONT-FAMILY: "宋体"; FONT-SIZE: 10px; SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff; SCROLLBAR-SHADOW-COLOR: #828282; SCROLLBAR-3DLIGHT-COLOR: #828282; SCROLLBAR-ARROW-COLOR: #797979; SCROLLBAR-TRACK-COLOR: #ffffff; SCROLLBAR-FACE-COLOR: #66b7ef; SCROLLBAR-DARKSHADOW-COLOR: #ffffff }
+	</style>
+ </head>
+<body onload="window_onload();" >
+        <DIV style='position:absolute;border:0px solid #000000; left:15px;top:10px;'>
+            <input id='btncmd0' type="button" onclick='funChangePad(0);' style="background:#80BEC4; border:0 " value="呼叫命令"/>
+            <input id='btncmd1' type="button" onclick='funChangePad(1);' style="background:#f5f9ff; border:0 " value="服务器参数"/>
+            <input id='btncmd2' type="button" onclick='funChangePad(2);' style="background:#f5f9ff; border:0 " value="呼叫参数"/>
+            <重要提示:要求使用chrome浏览器,一个页面上的座席数不要超过200 版本更新时间:20190227>
+        </DIV>
+        <Div id ="divPad0"  style='position:absolute;border:0px solid #ff3900; left:10px;top:30px;margin:5px'>
+            <input id='btnInitUI' type="button" onclick='G_OSimulator.InitialAgentTable();'  value="初始化列表" title="执行方法:InitialAgentTable()" />
+            <input id='btnInitial' type="button" onclick='G_OSimulator.AgentInitial();'  value="登录" title="执行方法:AgentInitial()" />
+            <input id='btnSetIdle' type="button" onclick='G_OSimulator.AgentSetIdel();'  value="置闲" title="执行方法:AgentSetIdel()" />
+            <input id='btnSetBusy' type="button" onclick='G_OSimulator.AgentSetBusy();'  value="置忙" title="执行方法:AgentSetBusy()" />
+            <input id='btnMakeCall' type="button" onclick='G_OSimulator.AgentMakeCall();'  value="外呼" title="执行方法:btnMakeCall()" />
+            <input id='btnStop' type="button" onclick='G_OSimulator.AgentStop();'  value="停止" title="执行方法:AgentStop()" />
+            <input id='btnUnitial' type="button" onclick='G_OSimulator.AgentUnitial();'  value="签出" title="执行方法:AgentUnitial()" />
+
+        </Div>
+
+        <DIV id ="divPad1" style='position:absolute;border:0px solid #ff3900; left:10px;top:30px;margin:5px;display: none'>
+             服务器: <input type="text" id="mainIP" value="192.168.2.136"size="10"  />
+             集团号: <input type="text" id="vccID" size="4" value="958888"  />
+             起始工号: <input type="text" id="agentID" value="1001" size="2"  />
+             工号个数: <input type="text" id="count" value="10" size="2"  />
+            <label><input id="sipCheck" type="checkbox" value="0" onclick="G_OSimulator.OnSipCheck()" />内置SIP，只有一个座席的时候才可以使用</label>
+         </DIV>
+        <DIV id ="divPad2" style='position:absolute;border:0px solid #ff3900; left:10px;top:30px;margin:5px;display: none'>
+            测试类型：
+            <SELECT ID="oSIMType" NAME="oSIMTypes" onchange="G_OSimulator.OnCallTypeChange();">
+                <OPTION VALUE="0" >  呼入
+                <OPTION VALUE="1" selected>  呼出
+            </SELECT>
+        </DIV>
+         <DIV id="divCallOut" style='position:absolute;border:0px solid #ff3900; left:150px;top:30px;margin:5px;display: none' >
+             目标号码(呼出): <input type="text" id="destNum" value="19900000001" size="8"  />
+             通话时间(s): <input type="text" id="IntervalTime" value="7" size="2"  />
+             间隔时间(s): <input type="text" id="outIdleTime" value="3" size="2"  />
+             <label><input id="callOutCheck" type="checkbox" value="0" onclick="G_OSimulator.OnCallOutCheck()" />出错停止</label>
+             最大呼叫数(0无限): <input type="text" id="outMaxNum" value="5" size="2"  />
+         </DIV>
+         <DIV id="divCallIn" style='position:absolute;border:0px solid #ff3900; left:150px;top:30px;margin:5px;display: none'>
+             间隔时间(s): <input type="text" id="inIdleTime" value="3" size="2"  />
+             <label><input id="callInCheck" type="checkbox" value="0" />出错停止</label>
+             最大呼叫数(0无限): <input type="text" id="inMaxNum" value="5" size="2"  />
+         </DIV>
+        <Div id ="divPad3"  style='position:absolute;border:0px solid #ff3900; left:10px;top:30px;margin:5px;display: none'>
+            日志地址: <input type="text" id="serverIP" value="127.0.0.1" size="5"  />
+            日志端口号: <input type="text" id="serverPort" value="4600" size="2"  />
+            连接状态: <input type="text" id="serverStarus" value="" readonly size="30"  />
+            <input id='btnConnectToLog' type="button" onclick="G_OSimulator.ConnectToSipServer();"  value="连服务器" title="执行方法:InitialAgentTable()" />
+        </Div>
+</body>
+   <script type="text/javascript">
+
+       var g_showIndex = 0;
+       function funChangePad(index){
+           var oPad = document.getElementById("divPad"+g_showIndex);
+           oPad.style.display = "none";
+
+           var oBtn = document.getElementById("btncmd"+g_showIndex);
+           oBtn.style.background = "#f5f9ff";
+
+           oPad = document.getElementById("divPad"+index);
+           oPad.style.display = "block";
+           oBtn = document.getElementById("btncmd"+index);
+           oBtn.style.background = "#80BEC4";
+
+           g_showIndex = index;
+           G_OSimulator.DisplayDivSetting(index);
+       }
+
+
+       function showLog(Text) {
+       var oTextareaInfo= document.getElementById("TextareaInfo");
+       if(oTextareaInfo != null)
+           oTextareaInfo.value = oTextareaInfo.value + Text+"\n";
+   }
+
+   function OnSimulatorProtocol(msg){
+       G_OSimulator.OnSimProtocol(msg);
+   }
+   function OnSimulatorSip(msg){
+       //G_OSimulator.OnSimSipLog(msg);
+       //console.info(msg);
+   }
+
+    function window_onload() {
+       if (document.readyState == "complete") {
+           mainIP.value = G_OSimulator.Server;
+           vccID.value = G_OSimulator.VccID;
+           agentID.value = G_OSimulator.BeginAgentID;
+           count.value = G_OSimulator.Count;
+        //   G_OSimulator.DisplayDivSetting();
+           G_OSimulator.Init();
+       }
+    }
+
+
+     </script>
+
+</html>
+

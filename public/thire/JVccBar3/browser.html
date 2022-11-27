@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+
+	<title>浏览器信息</title>
+		<style> BODY { FONT-FAMILY: "Verdana"; FONT-SIZE: 42px; SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff; SCROLLBAR-SHADOW-COLOR: #828282; SCROLLBAR-3DLIGHT-COLOR: #828282; SCROLLBAR-ARROW-COLOR: #797979; SCROLLBAR-TRACK-COLOR: #ffffff; SCROLLBAR-FACE-COLOR: #66b7ef; SCROLLBAR-DARKSHADOW-COLOR: #ffffff }
+	</style>
+
+</head>
+<body style="margin-left:20px;margin-top:20px;" onload="window_onload();">
+<p id="idBrowser"></p>
+<script type="text/javascript">
+  function getSubString(source,bgn,end){
+    if(bgn == "" && end=="" )
+      return source;
+    var  dest = "";
+    var  temp = source;
+    if(bgn == ""){
+      dest = temp;
+    }else{
+      var  nBgn = temp.indexOf(bgn);
+      if(nBgn<0)
+        return "";
+      nBgn = nBgn+bgn.length;
+      dest = temp.substr(nBgn,temp.length);
+    }
+    temp = dest;
+    if(end == ""){
+      dest = temp;
+    }else{
+      var nEnd = temp.indexOf(end);
+      if(nEnd<0)
+        return "";
+      dest = temp.substr(0,nEnd);
+    }
+    return dest;
+  }
+
+  function GetBrowserString(leng16){
+    var ua = navigator.userAgent.toLowerCase();
+    var os = "";
+    var osversion = "";
+    var bs = "";
+    var bsVersion = "";
+    var strBrowser = "";
+
+    if (ua.indexOf("iphone") > 0) {
+      os = "ios";
+      osversion = getSubString(ua,"os "," like");
+
+      if (ua.indexOf("micromessenger") > 0){
+        bs = leng16?"w":"wx";
+        bsVersion = ua.match(/micromessenger\/([\d.]+)/)[1];
+      }
+      else if(ua.indexOf("safari") > 0){
+        bs = leng16?"s":"safari";
+        bsVersion = ua.match(/version\/([\d.]+)/)[1];
+      }
+      else {
+        bs = "unsurpport";
+        bsVersion = "--";
+      }
+
+    }
+    else if (ua.indexOf("ipad") > 0) {
+      os = "pad";
+      osversion = getSubString(ua,"os "," like");
+      if (ua.indexOf("micromessenger") > 0){
+        bs = leng16?"w":"wx";
+        bsVersion = ua.match(/micromessenger\/([\d.]+)/)[1];
+      }
+      else if(ua.indexOf("safari") > 0){
+        bs = leng16?"s":"safari";
+        bsVersion = ua.match(/version\/([\d.]+)/)[1];
+      }
+      else {
+        bs = "unsurpport";
+        bsVersion = "--";
+      }
+    }
+    else if (ua.indexOf("android") > 0) {
+      os = "and";
+      osversion = getSubString(ua,"(",")");
+      osversion = getSubString(ua,"android",";");
+      osversion = "android"+osversion;
+      if (ua.indexOf("micromessenger") > 0){
+        bs = leng16?"w":"wx";
+        bsVersion = ua.match(/micromessenger\/([\d.]+)/)[1];
+      }
+      else if(ua.indexOf("chrome") > 0){
+        bs = leng16?"c":"chrome";
+
+        bsVersion = ua.match(/chrome\/([\d.]+)/)[1];
+      }
+      else {
+        bs = leng16?"un":"unsurpport";
+        bsVersion = "--";
+      }
+    }
+    else if (ua.indexOf("windows") > 0) {
+      os = "win";
+      osversion = getSubString(ua,"(",")");
+      osversion = getSubString(osversion,"",";");
+      if (ua.indexOf("chrome")>0)
+      {
+        bs = leng16?"c":"chrome";
+        bsVersion = ua.match(/chrome\/([\d.]+)/)[1];
+      }
+      else if(ua.lastIndexOf("firefox")>0){
+        bs = leng16?"f":"firefox";
+        bsVersion = ua.match(/firefox\/([\d.]+)/)[1];
+      }
+      else {
+        bs = leng16?"un":"unsurpport";
+        bsVersion = "--";
+      }
+
+    }
+    else if (ua.indexOf("macintosh") > 0) {
+      os = "mac";
+      osversion = getSubString(ua,"(",")");
+      osversion = getSubString(osversion,"mac os x ","");
+      if (ua.indexOf("chrome")>0){
+        bs = leng16?"c":"chrome";
+        bsVersion = ua.match(/chrome\/([\d.]+)/)[1];
+      }
+      else if(ua.lastIndexOf("safari")>0){
+        bs = leng16?"s":"safari";
+        bsVersion = ua.match(/version\/([\d.]+)/)[1];
+      }
+      else {
+        bs = leng16?"un":"unsurpport";
+        bsVersion = "--";
+      }
+
+    }
+    else{
+      os = leng16?"un":"unknown";
+      osversion = "--";
+      bs = bs = leng16?"un":"unsurpport";
+      bsVersion = "--";
+    }
+
+    if(leng16)
+      strBrowser = os+"-" + bs+bsVersion;
+    else
+      strBrowser = os+"("+ osversion+ ")-" + bs+"(" +bsVersion+")";
+    if(leng16){
+      if(strBrowser.length>16)
+        strBrowser = strBrowser.substr(0,15);
+    }
+    return strBrowser;
+  }
+
+  function GetClientXY(){
+    return "Height:"+screen.availHeight +" width:" + screen.availWidth ;
+  }
+
+  function window_onload(){
+    if(document.readyState=="complete") {
+      var oTextareaInfo= document.getElementById("idBrowser");
+      if(oTextareaInfo != null) {
+        var ua = navigator.userAgent.toLowerCase();
+        //ua = "mozilla/5.0 (iphone; cpu iphone os 12_3_1 like mac os x) applewebkit/605.1.15 (khtml, like gecko) mobile/15e148 micromessenger/7.0.10(0x17000a21) nettype/wifi language/zh_cn";
+        //ua = "mozilla/5.0 (iphone; cpu iphone os 13_3_1 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/13.0.5 mobile/15e148 safari/604.1";
+        //ua = "mozilla/5.0 (ipad; cpu os 12_4_5 like mac os x) applewebkit/605.1.15 (khtml, like gecko) mobile/15e148 micromessenger/7.0.3(0x17000321) nettype/wifi language/zh_cn";
+        //ua = "mozilla/5.0 (ipad; cpu os 12_4_5 like mac os x) applewebkit/605.1.15 (khtml, like gecko) version/12.1.2 mobile/15e148 safari/604.1";
+
+        //ua = "mozilla/5.0 (linux; android 9; lld-al00) applewebkit/537.36 (khtml, like gecko) chrome/76.0.3809.111 mobile safari/537.36";
+        //ua = "mozilla/5.0 (linux; android 9; lld-al00 build/honorlld-al00; wv) applewebkit/537.36 (khtml, like gecko) version/4.0 chrome/66.0.3359.126 mqqbrowser/6.2 tbs/045111 mobile safari/537.36 mmwebid/8655 micromessenger/7.0.10.1580(0x27000afd) process/tools nettype/wifi language/zh_cn abi/arm64";
+
+        oTextareaInfo.innerHTML = oTextareaInfo.innerHTML + ua+ "<br><br>------------------------<br> os:"+GetBrowserString(false) +"<br>"+GetClientXY();
+      }
+
+    }
+  }
+</script>
+</body>
+
+</html>

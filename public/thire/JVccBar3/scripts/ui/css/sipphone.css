@@ -1,0 +1,207 @@
+BODY
+{
+    background-image: url(../images/backgroud1.jpg);
+    background-size:100%;
+
+    FONT-FAMILY: "Verdana";
+    FONT-SIZE: 12px;
+    SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff;
+    SCROLLBAR-SHADOW-COLOR: #828282;
+    SCROLLBAR-3DLIGHT-COLOR: #828282;
+    SCROLLBAR-ARROW-COLOR: #797979;
+    SCROLLBAR-TRACK-COLOR: #ffffff;
+    SCROLLBAR-FACE-COLOR: #66b7ef;
+    SCROLLBAR-DARKSHADOW-COLOR: #ffffff
+}
+* {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+.login-box {
+    position: absolute;
+    z-index: 100;
+    /*margin-top: 100px;*/
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background:#99cdff;
+    border-radius: 10px;
+    padding-top: 10px;
+    box-shadow: 0 4px 50px -1px #FFF;
+}
+.divframe
+{
+    border:#909090 1px solid;border-radius: 1%;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=3);/*ie*/
+    -moz-box-shadow: 2px 2px 10px #909090;/*firefox*/
+    -webkit-box-shadow: 2px 2px 10px #909090;/*safari或chrome*/
+    box-shadow:2px 2px 10px #909090;/*opera或ie9*/
+    margin:5px;font-size: small;text-align:center;vertical-align:middle;
+}
+.divLogin
+{
+    border:#909090 2px solid;border-radius: 2%;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=3);/*ie*/
+    -moz-box-shadow: 2px 2px 10px #909090;/*firefox*/
+    -webkit-box-shadow: 2px 2px 10px #909090;/*safari或chrome*/
+    box-shadow:2px 2px 10px #909090;/*opera或ie9*/
+    margin:50px;font-size:xx-small;text-align:center;vertical-align:middle;
+    background:#FFFFFF;
+    color:#333;
+}
+
+.divTitle
+{
+    border:#909090 0px solid;border-radius: 2px;
+    margin:5px;font-size: small;text-align:left;vertical-align:middle;
+}
+.divPad
+{
+    border:#909090 0px solid;border-radius: 3px;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=3);/*ie*/
+    -moz-box-shadow: 2px 2px 10px #909090;/*firefox*/
+    -webkit-box-shadow: 2px 2px 10px #909090;/*safari或chrome*/
+    box-shadow:2px 2px 10px #909090;/*opera或ie9*/
+    margin:5px;font-size: small;text-align:center;vertical-align:middle;
+}
+.divTool
+{
+    border:#909090 0px solid;border-radius: 3px;
+    margin:5px;font-size: small;text-align:center;vertical-align:middle;
+}
+.divStatus
+{
+    border:#909090 0px solid;float:left;
+    margin:5px;font-size: x-small;text-align:left;vertical-align:middle;
+}
+.divInputLogin
+{
+    border:#909090 0px solid;float:left;padding-left: 10px;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=3);/*ie*/
+    -moz-box-shadow: 2px 2px 10px #909090;/*firefox*/
+    -webkit-box-shadow: 2px 2px 10px #909090;/*safari或chrome*/
+    box-shadow:2px 2px 10px #909090;/*opera或ie9*/
+    margin-top:5px;margin-left:30px;font-size:11pt;text-align:left;vertical-align:middle;
+    background:#FFFFFF;
+    color:#333;
+}
+.divInput
+{
+    border:#909090 0px solid;float:left;padding-left: 10px;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=3);/*ie*/
+    -moz-box-shadow: 2px 2px 10px #909090;/*firefox*/
+    -webkit-box-shadow: 2px 2px 10px #909090;/*safari或chrome*/
+    box-shadow:2px 2px 10px #909090;/*opera或ie9*/
+    margin-top:5px;margin-left:10px;font-size: small;text-align:left;vertical-align:middle;
+    background:#99cdff;
+    color:#333;
+}
+.BtnCallMethod
+{
+    width:50px; height:25px;
+    border: 1px solid #4d4d4d;
+    margin-top:4px;padding-top: 2px;
+    -moz-border-radius: 5px; /* Gecko browsers */
+    -webkit-border-radius: 5px;   /* Webkit browsers */
+    border-radius:5px;            /* W3C syntax */
+    font-size: 12px;
+    font-family: 新宋体;
+    font-weight:500;
+}
+.BtnMethod2
+{
+    width:80px; height:24px;
+    border: 1px solid #4d4d4d;
+    margin-top:6px;padding-top: 2px;
+    -moz-border-radius: 5px; /* Gecko browsers */
+    -webkit-border-radius: 5px;   /* Webkit browsers */
+    border-radius:5px;            /* W3C syntax */
+    font-size: 12px;
+    font-family: 新宋体;
+    font-weight:500;
+}
+
+.BtnMethod
+{
+    width:42px; height:32px;
+    border: 1px solid #4d4d4d;
+    margin-top:6px;padding-top: 2px;
+    -moz-border-radius: 5px; /* Gecko browsers */
+    -webkit-border-radius: 5px;   /* Webkit browsers */
+    border-radius:5px;            /* W3C syntax */
+    font-size: 12px;
+    font-family: 新宋体;
+    font-weight:500;
+}
+.BtnDial
+{
+    width:80px; height:35px;
+    margin-left:10px;margin-top:10px;padding-top: 2px;
+    border: 0px solid #4d4d4d;
+    -moz-border-radius: 8px; /* Gecko browsers */
+    -webkit-border-radius: 8px;   /* Webkit browsers */
+    border-radius:8px;            /* W3C syntax */
+    font-size: 20px;
+    font-family: 微软雅黑;
+    font-weight:600;
+}
+.InputClass{
+    height: 20px;
+    border-left-width:0px;
+    border-top-width:0px;
+    border-right-width:0px;
+    border-bottom-width:1px;
+    border-bottom-color:black;
+    background:rgba(0, 0, 0, 0);
+    font-size: 24px;
+    font-family: 微软雅黑;
+    font-weight:600;
+}
+.btnPhone{
+    width:48px;
+    height: 48px;
+    margin: 0px;
+    border: 0px solid #4d4d4d;
+}
+.btnPhonegray
+{
+    width:48px;
+    height: 48px;
+    margin: 0px;
+    border: 0px solid #4d4d4d;
+    background-color:darkgray;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+
+    filter: grayscale(100%);
+
+    filter: gray;
+}
+
+.btnCall{
+    width:32px;
+    height: 32px;
+    margin: 0px;
+    border: 0px solid #4d4d4d;
+    background-color:#52d689;
+}
+.btnCallgray
+{
+    width:32px;
+    height: 32px;
+    margin: 0px;
+    border: 0px solid #4d4d4d;
+    background-color:darkgray;
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+
+    filter: grayscale(100%);
+
+    filter: gray;
+}

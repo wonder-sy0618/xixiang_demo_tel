@@ -1,0 +1,497 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+    <title>PUREJS版本cinvccbar-全功能</title>
+
+
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/icon.css">
+	<script src="jquery-easyui-1.4/jquery.min.js" type="text/javascript"></script>
+	<script src="jquery-easyui-1.4/jquery.easyui.min.js" type="text/javascript"></script>
+
+	<script src="scripts/jssip.min.js" type="text/javascript"></script>
+	<script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+
+	<script src="scripts/ui/jbardisplay.js" type="text/javascript"></script>
+
+	<script src="jbarextent.js" type="text/javascript"></script>
+
+	<script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
+
+	<script>
+		// 初始化
+		var vConsole = new VConsole();
+		//console.log('Hello world');
+	</script>
+
+	<style> BODY { FONT-FAMILY: "Verdana"; FONT-SIZE: 12px; SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff; SCROLLBAR-SHADOW-COLOR: #828282; SCROLLBAR-3DLIGHT-COLOR: #828282; SCROLLBAR-ARROW-COLOR: #797979; SCROLLBAR-TRACK-COLOR: #ffffff; SCROLLBAR-FACE-COLOR: #66b7ef; SCROLLBAR-DARKSHADOW-COLOR: #ffffff }
+	</style>
+ </head>
+<body onload="window_onload();" >
+        <br>
+        <br>
+        <DIV style='position:absolute;border:0px solid #ff3900; left:10px;top:60px;'>
+        服务器&nbsp;&nbsp;&nbsp;: <input type="text" id="mainIP" value="111.204.26.22"size="14"  />
+        集团号&nbsp;&nbsp;&nbsp;: <input type="text" id="vccID" size="12" value="100001"  /> <br>
+		工&nbsp;&nbsp;&nbsp;号&nbsp;&nbsp;&nbsp;: <input type="text" id="agentID" value="1006" size="14"  />
+		座席密码&nbsp;&nbsp;: <input type="text" id="agnetPassword" value="123abc" size="12"  /><br>
+		sip密码&nbsp;&nbsp;: <input type="text" id="sipPassword" value="Q6v^!t@HS1Cd?qF" size="14"  />
+		sipxpath&nbsp;&nbsp;: <input type="text" id="sipXPath" value="acd" size="12"  /><br>
+			目标参数:
+			<INPUT type="text" id="DestNum" NAME="DestNum" size="40" title="变量名称:DestNum"><br>
+			附加参数:
+			<INPUT type="text" id="DestNum2" NAME="DestNum2"  size="40"  title="变量名称:DestNum2" >
+		</DIV>
+		<DIV style='position:absolute;border:1px solid #000000; left:417px;top:60px;'>
+  			   <input id='btncmd0' type="button" onclick='funChangePad(0);' style="background:#f5f9ff; border:0 " value="参数"/>
+               <input id='btncmd1' type="button" onclick='funChangePad(1);' style="background:#f5f9ff; border:0 " value="基本命令"/>
+               <input id='btncmd2' type="button" onclick='funChangePad(2);' style="background:#f5f9ff; border:0 " value="基本状态"/>
+    		   <input id='btncmd7' type="button" onclick='funChangePad(7);' style="background:#f5f9ff; border:0 " value="基本状态2"/>
+               <input id='btncmd3' type="button" onclick='funChangePad(3);' style="background:#f5f9ff; border:0 " value="呼叫命令"/>
+               <input id='btncmd4' type="button" onclick='funChangePad(4);' style="background:#f5f9ff; border:0 " value="质检命令"/>
+               <input id='btncmd5' type="button" onclick='funChangePad(5);' style="background:#f5f9ff; border:0 " value="监控命令"/>
+		</DIV>
+		<div id ="divPad0" style="position:absolute;border:0px solid #4A9DF9;left:417px;top:70px; display:none;"  >
+			<br>
+			CTI端口号:<input type="text" id="ctiPort" value="5049" size="12"  />&nbsp;&nbsp;&nbsp;
+			Monitor端口号:<input type="text" id="monitorPort" value="5049" size="12"  />
+			sip&nbsp;端口&nbsp;: <input type="text" id="sipPort" value="5040" size="12"  />
+			logxPath&nbsp;端口&nbsp;: <input type="text" id="logXPath" value="log" size="12"  />
+			<br>
+			AppType:
+			<SELECT ID="oAppType" NAME="AppTypes" onchange="application.oJVccBar.SetAttribute('AppType',parseInt(oAppType.options[oAppType.options.selectedIndex].value));">
+				<OPTION VALUE="0" SELECTED>Agent
+				<OPTION VALUE="1">Monitor
+				<OPTION VALUE="2" >Agent+Monitor
+			</SELECT>
+			&nbsp;&nbsp;&nbsp;
+			ProtocolType:
+			<SELECT ID="oProtocolType" NAME="ProtocolTypes" onchange="application.oJVccBar.SetAttribute('ProtocolType',parseInt(oProtocolType.options[oProtocolType.options.selectedIndex].value));">
+				<OPTION VALUE="0" >http
+				<OPTION VALUE="1" SELECTED>https
+			</SELECT>
+			&nbsp;&nbsp;&nbsp;
+			TransportType:
+			<SELECT ID="oTransportType" NAME="TransportType" onchange="application.oJVccBar.SetAttribute('TransportType',parseInt(oTransportType.options[oTransportType.options.selectedIndex].value));">
+				<OPTION VALUE="0" SELECTED>websocket
+				<OPTION VALUE="1" >polling
+			</SELECT>
+			<br>
+			视频内容:
+			<SELECT ID="oVideoSource" NAME="oVideoSource" onchange="SetCameraDevices();">
+				<OPTION VALUE="camera" SELECTED>摄像头
+				<OPTION VALUE="watermark" >水印
+				<OPTION VALUE="background" >背景图片
+			</SELECT>
+			摄像头:
+			<SELECT ID="oCameraDevices" NAME="oCameraDevices" onchange="SetCameraDevices();">
+			</SELECT>
+			分辨率宽度: <input type="text"  id="resolutionWidth" value="480" size="12"  />
+			分辨率高度: <input type="text" id="resolutionHeight" value="640" size="12"  />
+			<label><input id="log_rtpStatics" type="checkbox" value="0" />音视频统计信息 </label>
+			<br>
+		</div>
+		<div id ="divPad1" style="position:absolute;border:0px solid #4A9DF9;left:417px;top:70px; display:none;"  >
+                <br>
+                <input id='btnInitial' type="button" onclick='funInitial();'  value="初始化" title="执行方法:Initial()" />
+                <input id='btnUnInitial' type="button" onclick='application.oJVccBar.UnInitial();' value="注销" title="执行方法:UnInitial()" />
+                <input id='btnSerialBtn' type="button" onclick='funSerialBtn();' value="界面设置" title="执行方法:SerialBtn(DestNum,DestNum2) " />
+                <input id='btnGetBtnStatus' type="button" onclick='alert(application.oJVccBar.GetBtnStatus(DestNum.value));' value="可用电话按钮" title="执行方法:GetBtnStatus(DestNum) " />
+                <br>
+				<input id="btnConfigurate" onclick="funConfigurate();" type="button" value="设置参数" title="执行方法:funConfigurate()">
+				<input id="btnGetConfiguration" onclick="alert(application.oJVccBar.GetConfiguration());" type="button" value="得到参数" title="执行方法:GetConfiguration()">
+                <input id='btnGetVersion' type="button" onclick='alert(application.oJVccBar.GetVersion());' value="版本" title="执行:GetVersion(),得到版本号" />
+
+
+				<input id='btnEmpty' type="button" onclick="emptyLog();" value="清空日志" title="执行清空日志;" />
+			     <input id='btnCheckUrl' type="button" onclick="checkhttpsUrl();" value="检查httpsUrl" title="检查httpsUrl;" />
+                 <input type="button" onclick="openPaletteWrapper()" value="打开画板" title="打开画板"/>
+                <br><br>&nbsp;
+					日志级别:<label><input id="log_error" type="checkbox" value="0" onclick="SetLogType();"/>致命错误 </label>
+					<label><input id="log_warn" type="checkbox" value="0" onclick="SetLogType();"/>警告信息 </label>
+					<label><input id="log_info" type="checkbox" value="0" onclick="SetLogType();"/>提示消息 </label>
+					<label><input id="log_debug" type="checkbox" value="0" onclick="SetLogType();"/>调试信息</label>
+					<label><input id="log_protocal" type="checkbox" value="0" onclick="SetLogType();"/>协议信息 </label>
+
+					<label><input id="log_console" type="checkbox" value="0" onclick="SetLogType();"/>sip日志 </label>
+                <br>
+		</div>	
+	    <div id ="divPad2" style="position:absolute;border:0px solid #ff00ff;left:417px;top:70px; display:none;"  >
+                <br>
+			    <input id="btnSetBusy" onclick="funMethod('SetBusy');" type="button" value="置忙" title="执行方法:SetBusy(DestNum.value)">
+			    <input id="btnSetIdle" onclick="funMethod('SetIdle');" type="button" value="置闲"  title="执行方法:SetIdle()">
+			    <input id="btnSetWrapUp" onclick="funMethod('SetIdle');//application.oJVccBar.SetWrapUp();" type="button" value="置后续态"  title="执行方法:SetWrapUp()">
+			    <input id="btnSetCTICalloutTask" onclick="funMethod('SetCTICalloutTask');//application.oJVccBar.SetCTICalloutTask(DestNum.value);" type="button" value="设置外呼任务"  title="执行:SetCTICalloutTask(DestNum.value);">
+			    <input id="btnGetCTICalloutTask" onclick="funMethod('GetCTICalloutTask');//application.oJVccBar.GetCTICalloutTask();" type="button" value="得到外呼任务号"  title="执行:GetCTICalloutTask();">
+			    <input id="btnGetCallData" onclick="funMethod('GetCallData');//application.oJVccBar.GetCallData(DestNum.value);" type="button" value="得到随路数据"  title="执行:GetCallData(DestNum.value);">
+			    <input id="btnSetCallData" onclick="funMethod('SetCallData');//application.oJVccBar.SetCallData(DestNum.value,DestNum2.value);" type="button" value="设置随路数据"  title="执行:SetCallData(DestNum.value,DestNum2.value);">
+			    <input id="btnChangeCallQueue" onclick="application.oJVccBar.ChangeCallQueue(DestNum.value,DestNum2.value,'000');" type="button" value="ChangeCallQueue"   title="执行:ChangeCallQueue(DestNum.value,DestNum2.value,'000');">
+				<br>
+			    <input id="btnGetCallID" onclick="application.oJVccBar.GetCallID();" type="button" value="得到CallID"  title="执行:GetCallID();">
+ 				<input id="btnQuerySPGroupList" onclick="application.oJVccBar.QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1);" type="button" value="QuerySPGroupList"  title="执行:QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1);">
+				<input id="btnQuerySPGroupList1" onclick="application.oJVccBar.QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1,0,5);" type="button" value="QuerySPGroupList Begin"  title="执行:QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1,2,5);">
+				<input id="btnQuerySPGroupList2" onclick="application.oJVccBar.QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1,1,0);" type="button" value="QuerySPGroupList End"  title="执行:QuerySPGroupList(DestNum.value,-1,parseInt(DestNum2.value),1,1,0);">
+			    <input id="btnGetCallInfo" onclick="alert(application.oJVccBar.GetCallInfo());" type="button" value="得到呼叫信息"  title="执行:GetCallInfo();">
+			    <input id="btnSetTransparentParameter" onclick="application.oJVccBar.SetTransparentParameter(DestNum.value);" type="button" value="设置透明参数"  title="执行:SetTransparentParameter(DestNum.value);">
+				<br>
+				<input id="btnGetAgentStatus" onclick="alert(application.oJVccBar.GetAgentStatus());" type="button" value="得到座席状态"   title="执行:GetAgentStatus();">
+				<input id="btnGetBusySubStatus" onclick="alert(application.oJVccBar.GetBusySubStatus());" type="button" value="得到忙碌子状态信息"   title="执行:GetBusySubStatus();">
+			    <input id="btnSetDisplayNumber" onclick="application.oJVccBar.SetDisplayNumber(DestNum.value);" type="button" value="设置外呼显示号码"  title="执行:SetDisplayNumber(DestNum.value);">
+			    <input id="btnGetDisplayNumber" onclick="application.oJVccBar.GetDisplayNumber();" type="button" value="得到外呼显示号码"  title="执行:GetDisplayNumber();">			    
+		</div>	
+	    <div id ="divPad7" style="position:absolute;border:0px solid #ff00ff;left:417px;top:70px; display:none;"  >
+		   <br>
+		   <input id="btnCallQueueQuery" onclick="application.oJVccBar.CallQueueQuery(DestNum.value);" type="button" value="查询排队信息"   title="执行:CallQueueQuery(DestNum.value);" >
+		   <input id="btnCallQueueQuery1" onclick="application.oJVccBar.CallQueueQuery(DestNum.value,0,5);" type="button" value="查询排队信息(开始)"   title="执行:CallQueueQuery(DestNum.value,2,5);" >
+		   <input id="btnCallQueueQuery2" onclick="application.oJVccBar.CallQueueQuery(DestNum.value,1,0);" type="button" value="查询排队信息(结束)"   title="执行:CallQueueQuery(DestNum.value,1,0);" >
+		   <input id="btnQueryGroupAgentStatus" onclick="application.oJVccBar.QueryGroupAgentStatus(DestNum.value,parseInt(DestNum2.value),10);" type="button" value="查询指定组的座席状态"  title="执行:QueryGroupAgentStatus(DestNum.value,parseInt(DestNum1.value),10);">
+		   <br>
+		   <input id="btnQueryGroupAgentStatus2" onclick="application.oJVccBar.QueryGroupAgentStatus(DestNum.value,parseInt(DestNum2.value),10,1);" type="button" value="查询指定组的座席状态2"  title="执行:QueryGroupAgentStatus(DestNum.value,parseInt(DestNum1.value),10,1);">
+		   <input id="btnQueryPreViewCallOutNumbers" onclick="application.oJVccBar.QueryPreViewCallOutNumbers(DestNum.value,DestNum2.value,50,1);" type="button" value="查询并分配预览外呼号码"  title="执行:QueryPreViewCallOutNumbers(DestNum.value,DestNum1.value,50,1);">
+		   <input id="btnGetBase64Data" onclick="alert(application.oJVccBar.GetBase64Data(DestNum.value));" type="button" value="base64编码"  title="执行:GetBase64Data(DestNum.value);">
+		   <input id="btnGetDataFromBase64" onclick="alert(application.oJVccBar.GetDataFromBase64(DestNum.value));" type="button" value="反base64编码"  title="执行:GetDataFromBase64(DestNum.value);">
+		   <input id="btnSetWeChatQueueFlag" onclick="application.oJVccBar.SetWeChatQueueFlag(parseInt(DestNum.value));" type="button" value="设置微信参与排队"  title="执行:SetWeChatQueueFlag(parseInt(DestNum.value));">
+		   <input id="btnGetWeChatQueueFlag" onclick="application.oJVccBar.GetWeChatQueueFlag();" type="button" value="得到微信参与排队"  title="执行:GetWeChatQueueFlag();">
+		   <br>
+		   <input id="btnTransferCallQueue" onclick="application.oJVccBar.TransferCallQueue(DestNum.value,0,DestNum2.value);" type="button" value="转接排队用户"   title="执行:TransferCallQueue(DestNum.value,0,DestNum2.value);">
+		   <input id="btnSetActiveService" onclick="application.oJVccBar.SetActiveService(DestNum.value);" type="button" value="设置当前人工服务"  title="执行:SetActiveService(DestNum.value);">
+		   <input id="btnGetActiveService" onclick="application.oJVccBar.GetActiveService();" type="button" value="当前座席人工服务集合"  title="执行:GetActiveService();">
+		   <input id="btnSetForwardNumber" onclick="application.oJVccBar.SetForwardNumber(DestNum.value,parseInt(DestNum2.value));" type="button" value="设置接续号码"  title="执行:SetForwardNumber(DestNum.value,parseInt(DestNum2.value));">
+		   <input id="btnGetForwardNumber" onclick="application.oJVccBar.GetForwardNumber();" type="button" value="得到接续号码"  title="执行:GetForwardNumber();">
+		   <input id="btnSetAgentReservedStatus" onclick="application.oJVccBar.SetAgentReservedStatus(parseInt(DestNum.value),parseInt(DestNum2.value));" type="button" value="设置坐席预留状态"  title="执行:SetAgentReservedStatus(parseInt(DestNum.value),parseInt(DestNum2.value));">
+		   <input id="btnSetMMService" onclick="application.oJVccBar.SetMMService(DestNum.value,DestNum2.value);" type="button" value="设置多媒体服务"  title="执行: SetMMService(DestNum.value,DestNum2.value);" >
+	   </div>
+	    <div id ="divPad3" style="position:absolute;border:0px solid #ff00ff;left:417px;top:70px; display:none;"  >
+                <br>
+				<input id="btnMakeCall" onclick="application.oJVccBar.MakeCall(DestNum.value,2,'',DestNum2.value,'','',1);" type="button" value="外呼" title="执行:MakeCall(DestNum.value,2,'',DestNum2.value,'');" >
+				<input id="btnCallIn" onclick="application.oJVccBar.CallIn(DestNum.value,5,'',DestNum2.value);" type="button" value="内呼" title="执行方法:CallIn(DestNum.value,5,DestNum2.value);" >
+				<input id="btnTransferOut" onclick="application.oJVccBar.TransferOut(parseInt(DestNum2.value),DestNum.value);" type="button" value="转出"  title="执行:TransferOut(parseInt(DestNum2.value),DestNum.value)" >
+				<input id="btnHold" onclick="application.oJVccBar.Hold(DestNum.value);" type="button" value="保持" title="执行:Hold(DestNum.value);" >
+				<input id="btnRetrieveHold" onclick="application.oJVccBar.RetrieveHold(DestNum.value);" type="button" value="取保持"   title="执行:RetrieveHold(DestNum.value);" >
+				<input id="btnDisconnect" onclick="application.oJVccBar.Disconnect(parseInt(DestNum.value));" type="button" value="挂断"   title="执行:Disconnect(parseInt(DestNum.value));" >
+				<input id="btnAnswer" onclick="application.oJVccBar.Answer(parseInt(DestNum.value));" type="button" value="应答"   title="执行:Answer(parseInt(DestNum.value));" >
+				<input id="btnConsult" onclick="application.oJVccBar.Consult(parseInt(DestNum2.value),DestNum.value);" type="button" value="咨询"   title="执行:Consult(parseInt(DestNum2.value),DestNum.value);" >
+				<input id="btnTransfer" onclick="application.oJVccBar.Transfer();" type="button" value="转移"   title="执行:Transfer();" >
+				<input id="btnConference" onclick="application.oJVccBar.Conference();" type="button" value="会议"   title="执行:Conference();" >
+                <br>
+				<input id="btnSendDTMF" onclick="application.oJVccBar.SendDTMF(DestNum.value);" type="button" value="二次拨号" title="执行方法:SendDTMF(DestNum.value);" >
+				<input id="btnBeginRecord" onclick="application.oJVccBar.BeginRecord(DestNum.value,DestNum2.value);" type="button" value="开始录音"  title="执行:BeginRecord(DestNum.value,DestNum2.value); 【不使用】"  >
+				<input id="btnStopRecord" onclick="application.oJVccBar.StopRecord(DestNum.value);" type="button" value="停止录音"  title="执行:StopRecord(DestNum.value); 【不使用】"  >
+				<input id="btnBeginPlay" onclick="application.oJVccBar.BeginPlay(DestNum.value,'',0,DestNum2.value,'');" type="button" value="推送视频和图片"  title="执行:BeginPlay(DestNum.value,'',0,DestNum2.value,'');"  >
+				<input id="btnStopPlay" onclick="application.oJVccBar.StopPlay(DestNum.value,'');" type="button" value="停止推送"  title="执行:StopPlay(DestNum.value,'');"  >
+				<input id="btnBridge" onclick="application.oJVccBar.Bridge(DestNum.value,parseInt(DestNum2.value));" type="button" value="桥接"  title="执行:Bridge(DestNum.value,parseInt(DestNum2.value));"  >
+				<input id="btnMute" onclick="application.oJVccBar.Mute(parseInt(DestNum.value),DestNum2.value);" type="button" value="静音"   title="执行:Mute(parseInt(DestNum.value),DestNum2.value);" >
+				<input id="btnAlterNate" onclick="application.oJVccBar.AlterNate(DestNum.value);" type="button" value="电话切换" title="执行方法:AlterNate(DestNum.value);" >
+                <br>
+				<input id="btnCallBack" onclick="application.oJVccBar.CallBack();" type="button" value="回拨" title="执行:CallBack();" >
+				<input id="btnReCall" onclick="application.oJVccBar.ReCall();" type="button" value="重拨"   title="执行:ReCall();" >
+				<input id="btnSMMsg" onclick="application.oJVccBar.SMMsg(DestNum.value,DestNum2.value);" type="button" value="发短信"  title="执行:SMMsg(DestNum.value,DestNum2.value);"  >
+				<input id="btnReleaseThirdOne" onclick="application.oJVccBar.ReleaseThirdOne(parseInt(DestNum.value));" type="button" value="挂断第三方"   titfunSendSipMessagele="执行:ReleaseThirdOne(parseInt(DestNum.value));" >
+				<INPUT id="btnBeginCollect" onclick="application.oJVccBar.BeginCollect(DestNum.value,DestNum2.value,0,'',1,1,'','',20,10);" type="button" value="开始收号" title="执行:BeginCollect(DestNum.value,DestNum2.value,0,'',1,1,'','',20,10);" >
+				<INPUT id="btnStopCollect" onclick="application.oJVccBar.StopCollect(DestNum.value,DestNum2.value);" type="button" value="停止收号"  title="执行:StopCollect(DestNum.value,DestNum2.value);" >
+				<input id="btnFroceReset" onclick="application.oJVccBar.ForceReset();" type="button" value="强复位"  title="执行方法:FroceReset()">
+				<input id="btnSendIMMessage" onclick="application.oJVccBar.SendIMMessage( DestNum.value,'','',0,0,DestNum2.value);" type="button" value="发送即时消息"  title="执行方法:SendIMMessage( '','','',1,0,DestNum.value);">
+				<input id="btnSendIMMessage2" onclick="application.oJVccBar.SendIMMessage( DestNum.value,'','',0,2,DestNum2.value);" type="button" value="发送分机即时消息"  title="执行方法:SendIMMessage( DestNum.value,'','',0,2,DestNum2.value);">
+			<br>
+			    <input id="btnSendSipSessionMessage" onclick="funSendSipMessage('1');" type="button" value="发送sip文本消息"  title="执行方法:(1);">
+	    		<input id="btnSendSipSessionMessage2" onclick="funSendSipMessage('0');" type="button" value="发送sip图片消息"  title="执行方法:funSendSipMessage(0);">
+				<input id="btnUpdateMedia" onclick="application.oJVccBar.UpdateMedia(DestNum.value,DestNum2.value);" type="button" value="UpdateMedia"  title="执行方法:UpdateMedia(DestNum.value,DestNum2.value);">
+				<input id="btnBeginCapture" onclick="application.oJVccBar.BeginCapture(DestNum.value,DestNum2.value);" type="button" value="BeginCapture"  title="执行方法:BeginCapture(DestNum.value,DestNum2.value);">
+				<input id="btnConnect" onclick="application.oJVccBar.Connect(DestNum.value);" type="button" value="Connect"  title="执行方法:Connect(DestNum.value);">
+				<input id="btnReleaseConnectOne" onclick="application.oJVccBar.ReleaseConnectOne(DestNum.value);" type="button" value="ReleaseConnectOne"  title="执行方法:Connect(DestNum.value);">
+				<input id="btnMultiConfTransfer" onclick="application.oJVccBar.MultiConfTransfer(DestNum.value);" type="button" value="MultiConfTransfer"  title="执行方法:Connect(DestNum.value);">
+		</div>
+	    <div id ="divPad4" style="position:absolute;border:0px solid #ff00ff;left:417px;top:70px; display:none;"  >
+                <br>
+ 				<input id="btnForceClear" onclick="application.oJVccBar.ForeReleaseCall(DestNum.value);" type="button" value="强拆"  title="执行方法:ForeReleaseCall(DestNum.value)" >
+				<input id="btnInsert" onclick="application.oJVccBar.Insert(DestNum.value);" type="button" value="强插" title="执行方法:Insert(DestNum.value)" >
+				<input id="btnListen" onclick="application.oJVccBar.Listen(DestNum.value);" type="button" value="监听" title="执行方法:Listen(DestNum.value)" >
+				<input id="btnIntercept" onclick="application.oJVccBar.Intercept(DestNum.value);" type="button" value="拦截" title="执行方法:Intercept(DestNum.value)" >
+    			<input id="btnInterceptUser" onclick="application.oJVccBar.Intercept(DestNum.value,1,'',1);" type="button" value="拦截用户" title="执行方法:Intercept(DestNum.value,1,'',1)" >
+				<input id="btnHelp" onclick="application.oJVccBar.Help(DestNum.value);" type="button" value="辅助"  title="执行方法:Help(DestNum.value)" >
+		        <input id="btnForceIdle" onclick="application.oJVccBar.ForceIdle(DestNum.value);" type="button" value="强制置闲" title="执行方法:ForceIdle(DestNum.value)">
+                <br>
+				<input id="btnForceBusy" onclick="application.oJVccBar.ForceBusy(DestNum.value);" type="button" value="强制置忙"  title="执行方法:ForceBusy(DestNum.value)">
+				<input id="btnForceOut" onclick="application.oJVccBar.ForceOut(DestNum.value);" type="button" value="强制签出"  title="执行方法:ForceOut(DestNum.value)">
+				<input id="btnLock" onclick="application.oJVccBar.Lock(DestNum.value);" type="button" value="锁定"  title="执行方法:Lock(DestNum.value);【不用，系统自己锁定】">
+				<input id="btnUnLock" onclick="application.oJVccBar.UnLock(DestNum.value);" type="button" value="解锁"  title="执行方法:UnLock(DestNum.value)">
+		</div>	
+	    <div id ="divPad5" style="position:absolute;border:0px solid #ff00ff;left:417px;top:70px; display:none;"  >
+                <br>
+ 				<input id="btnInitialState" onclick="application.oJVccBar.InitialState();" type="button" value="InitialState"  title="执行方法:InitialState();" >
+				<input id="btnAgentQuery" onclick="application.oJVccBar.AgentQuery(DestNum.value,parseInt(DestNum2.value));" type="button" value="AgentQuery"  title="执行方法:AgentQuery(DestNum.value,parseInt(DestNum2.value));" >
+				<input id="btnTelQuery" onclick="application.oJVccBar.TelQuery(DestNum.value,parseInt(DestNum2.value));" type="button"  value="TelQuery" title="执行方法:TelQuery(DestNum.value,parseInt(DestNum2.value));" >
+				<input id="btnIvrQuery" onclick="application.oJVccBar.IvrQuery(DestNum.value,parseInt(DestNum2.value));" type="button"  value="IvrQuery" title="执行方法:IvrQuery(DestNum.value,parseInt(DestNum2.value));" >
+				<input id="btnServiceQuery" onclick="application.oJVccBar.ServiceQuery(DestNum.value,parseInt(DestNum2.value));" type="button"  value="ServiceQuery" title="执行方法:ServiceQuery(DestNum.value,parseInt(DestNum2.value));" >
+                <br>
+				<input id="btnTaskQuery" onclick="application.oJVccBar.TaskQuery(DestNum.value,parseInt(DestNum2.value));" type="button"  value="TaskQuery" title="执行方法:TaskQuery(DestNum.value,parseInt(DestNum2.value));" >
+				<input id="btnCallReportQuery" onclick="application.oJVccBar.CallReportQuery(DestNum.value,parseInt(DestNum2.value));" type="button"  value="CallReportQuery" title="执行方法:CallReportQuery(DestNum.value,parseInt(DestNum2.value));" >
+				<input id="btnGetTaskSummary" onclick="application.oJVccBar.GetTaskSummary(DestNum.value,DestNum2.value);" type="button"  value="GetTaskSummary" title="执行方法:GetTaskSummary(DestNum.value,DestNum2.value);" >
+                <br>
+				<input id="btnQueryMonitorSumInfo" onclick="application.oJVccBar.QueryMonitorSumInfo(DestNum.value,DestNum2.value);" type="button" value="查询指定参数的统计信息" title="执行:QueryMonitorSumInfo(DestNum.value,DestNum2.value);" >
+				<input id="btnStartNotification" onclick="application.oJVccBar.StartNotification(DestNum.value,DestNum2.value,'');" type="button" value="StartNotification"  title="执行方法:StartNotification(DestNum.value,DestNum2.value,'');" >
+				<input id="btnEndNotification" onclick="application.oJVccBar.EndNotification(DestNum.value);" type="button" value="EndNotification" title="执行方法:EndNotification(DestNum.value);" >
+	            <br>
+		</div>
+		<div class="divframe" id="divVedioDlg" style="position:absolute;top:60px;left:950px;width:460px;height:370px;background:#CCE6FF;color:#333;z-index: 999; display: none;">
+			<div id="divVedioWindow" class="divStatus" style="margin-left:2px;margin-top:2px;padding-top: 10px;width:460px;height:357px;background:#99cdff;color:#333;" >
+				&nbsp;&nbsp;&nbsp;视频窗口:
+				<span id="Vdelay" class="color0"> 延时：0ms </span>
+				<div style="position:absolute;border:0px solid #ff00ff;left:440px; top:8px">
+					<img src="jquery-easyui-1.4\themes\icons\cancel.png"  onclick="DisplayDiv('divVedioDlg',0);" />
+				</div>
+				<div id="agent_webcam" style="cursor: move; position: relative; border: 2px solid rgb(70, 163, 255); border-radius: 10px; left: 10px; top: 5px; width: 430px; height: 300px; background: rgb(130, 130, 130); display: block;">
+					<div id="agent_remoteView" style="width:430px; height: 300px;background-color: transparent;" ></div>
+					<div id="agent_shareView" style="position:absolute;left:150px;bottom: 6px;width: 133px;height: 100px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa;display:none" ></div>
+					<div id="agent_selfView" style="position:absolute;left:8px;bottom: 6px;width: 100px;height: 133px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa;" ></div>
+				</div>
+				<div style="position: relative;left: 12px; top: 10px;  " >
+					<input id="btnShareScreen" onclick="shareSreen('screen');" type="button" value="屏幕共享" >
+					<input id="btnShareImage" onclick="shareSreen('background');" type="button" value="背景图片" >
+					<input id="btnShareFile" onclick="shareSreen('videoFile');" type="button" value="文件共享" >
+					<input id="btnSharecamera" onclick="shareSreen('camera');" type="button" value="摄像头" >
+					<input id="btnSharecanvas" onclick="shareSreen('stream');" type="button" value="canvas" >
+					<input id="btnSnapShot" onclick="SnapShot();" type="button" value="远程快照" >
+				</div>
+			</div>
+		</div>
+        <DIV id ="divMessage0"  style='position:absolute;border:0px solid #00ff00; left:10px;top:200px;'>
+		<TEXTAREA id="TextareaInfo" name="TextareaInfo" rows="30" cols="126" value="" spellcheck="false" style="overflow:auto;font-family:verdana;font-size:12px"></TEXTAREA>
+		</DIV>
+		<div class="divframe" id="divPicDlg" style="position:absolute;top:280px;left:625px;width:424px;height:345px;background:#CCE6FF;color:#333;display: none">
+			<div style="position:absolute;border:0px solid #ff00ff;left:400px; top:4px">
+				<img src="jquery-easyui-1.4\themes\icons\cancel.png"  onclick="DisplayDiv('divPicDlg',0);" />
+			</div>
+			<div style="position:absolute;border:0px solid #ff00ff;top:30px;left:4px;width:414px;height:310px;">
+				<img  id="recvPic" src="" style="position:absolute;border:0px solid #ff00ff;top:0px;left:0px;width:414px;height:310px;" />
+			</div>
+		</div>
+
+		<video id="local_file" style="position:absolute;left:980px;bottom: 106px;width: 300px;height: 200px;background-color: #aaaaaa;border-top: 2px solid #aaaaaa;border-right: 2px solid #aaaaaa; display: none" autoplay playsinline controls muted  loop="loop" >
+			<source id = "srcfile" src="scripts/sip/videos/cat.mp4" type="video/mp4" />
+		</video>
+		<canvas id="canvas" style="position:absolute;left:568px;top: 200px;width: 300px;height: 300px; display: none">
+			Does not support canvas;
+		</canvas>
+</body>
+   <script type="text/javascript">
+    var g_showIndex = 1;
+	var clickX;
+	var clickY;
+    function funChangePad(index){
+        var oPad = document.getElementById("divPad"+g_showIndex);
+        oPad.style.display = "none";
+        
+        var oBtn = document.getElementById("btncmd"+g_showIndex);
+        oBtn.style.background = "#f5f9ff";
+        
+        oPad = document.getElementById("divPad"+index);
+        oPad.style.display = "block";
+        oBtn = document.getElementById("btncmd"+index);
+        oBtn.style.background = "#80BEC4";
+        
+        g_showIndex = index;
+    }
+
+	function window_onload(){
+		if(document.readyState=="complete"){
+			funChangePad(1);
+			document.addEventListener("mousemove",function(e){clickX = e.clientX;clickY = e.clientY;});
+			var param = "|||5049|||sbc";
+			param = "xylink.cincc.cn|888666|1002|443|!@5#LJ2br4sy#p5|123abc|acd";
+			var oParam = param.split("|");
+			mainIP.value = oParam[0];
+			vccID.value = oParam[1];
+			agentID.value = oParam[2];
+			sipPort.value = oParam[3];
+			monitorPort.value = oParam[3];
+			ctiPort.value = oParam[3];
+			sipPassword.value = oParam[4];
+			if(oParam.length>5)
+				agnetPassword.value = oParam[5];
+			if(oParam.length>6)
+				sipXPath.value = oParam[6];
+		}
+		applicationUILoad(10,10,1000,40,"");
+		applicationLoad("",setVccBarEvent,"");
+
+		GetMediaDevices(function(devices){
+			for (var i = 0; i !== devices.length; ++i)
+			{
+				const deviceInfo = devices[i];
+				const option = document.createElement('option');
+				option.value = deviceInfo.deviceId;
+				option.text = deviceInfo.label
+				oCameraDevices.appendChild(option);
+			}
+		});
+	}
+
+	function funInitial() {
+	    var  serverIP = document.getElementById("mainIP").value;
+	    var  vccID    = document.getElementById("vccID").value;
+	    var  agentID  = document.getElementById("agentID").value;
+	    var  sipPort     = document.getElementById("sipPort").value;
+		var  sipPassword = document.getElementById("sipPassword").value;
+		var  nCtiPort    = document.getElementById("ctiPort").value;
+		var  nMonitorPort     = document.getElementById("monitorPort").value;
+		var  agnetPassword     = document.getElementById("agnetPassword").value;
+        application.oJVccBar.SetAttribute("MainIP",serverIP);  //MainIP
+		application.oJVccBar.SetAttribute("MainPortID",nCtiPort);  //MainPort
+        application.oJVccBar.SetAttribute("BackIP",serverIP);  //BackIP
+        application.oJVccBar.SetAttribute("MonitorIP",serverIP);  //MonitorIP
+        application.oJVccBar.SetAttribute("MonitorPort",4502);  //MainPort
+		application.oJVccBar.SetAttribute("MonitorPort",nMonitorPort);  //MainPort
+        application.oJVccBar.SetAttribute("SipServerIP",serverIP);
+        application.oJVccBar.SetAttribute("SipServerPort",parseInt(sipPort));
+        application.oJVccBar.SetAttribute("SipProtocol","wss");
+//        application.oJVccBar.SetAttribute("PhonType",1);  //0:内置坐席卡；1：内置Sip；2：外置其他终端 3：远程sip电话; 4：软交换前传号码; 5：yealink话机 6：agora
+//        application.oJVccBar.SetAttribute("AgentType",1);
+//        application.oJVccBar.SetAttribute("SelfPrompt",0);
+        application.oJVccBar.SetAttribute("MediaFlag",vccID);
+//        application.oJVccBar.SetAttribute("AppType",0);  //0:agent 1:monitor 2:agent+monitor
+        application.oJVccBar.SetAttribute("PassWord",agnetPassword);
+        application.oJVccBar.SetAttribute("AgentID","000010"+vccID+agentID);
+        application.oJVccBar.SetAttribute("Dn","000002"+vccID+agentID);
+        application.oJVccBar.SetAttribute("SipXPath", document.getElementById("sipXPath").value);
+        application.oJVccBar.SetAttribute("SipPassWord", sipPassword);
+        application.oJVccBar.SetAttribute("LogXPath",logXPath.value);
+		application.oJVccBar.SetAttribute("AppType",parseInt(oAppType.options[oAppType.options.selectedIndex].value));
+		application.oJVccBar.SetAttribute("ProtocolType",parseInt(oProtocolType.options[oProtocolType.options.selectedIndex].value));
+		
+		application.oJVccBar.SetAttribute("AutoAnswerDelayTime", 0);
+
+        application.oJBarDisplayer = appVccBar;
+        funConfigurate();
+		application.oJVccBar.SerialBtn("0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,23,24,28,29,31");
+        application.oJVccBar.Initial();
+	}
+
+	function funSerialBtn(){
+		if(appVccBar != null){
+            appVccBar.SerialBtn(DestNum.value,DestNum2.value);
+		}
+
+		application.oJVccBar.SerialBtn(DestNum.value,DestNum2.value);
+	}
+
+	function funMethod(key){
+    	if(key == "SetBusy"){
+			application.oJVccBar.SetBusy(DestNum.value,function (p) {
+				showLog("SetBusy callback("+p+")\r\n");
+			});
+		}
+		else if(key == "SetIdle"){
+			application.oJVccBar.SetIdle(function (p) {
+				showLog("SetIdle callback("+p+")\r\n");
+			});
+		}
+		else if(key == "SetWrapUp"){
+			application.oJVccBar.SetWrapUp(function (p) {
+				showLog("SetWrapUp callback("+p+")\r\n");
+			});
+		}
+		else if(key == "SetCTICalloutTask"){
+			application.oJVccBar.SetCTICalloutTask(DestNum.value,function (p) {
+				showLog("SetCTICalloutTask callback("+p+")\r\n");
+			});
+		}
+		else if(key == "GetCTICalloutTask"){
+			application.oJVccBar.GetCTICalloutTask(function (p) {
+				showLog("GetCTICalloutTask callback("+p+")\r\n");
+			});
+		}
+		else if(key == "GetCallData"){
+			application.oJVccBar.GetCallData(DestNum.value,function (p) {
+				showLog("GetCallData callback("+p+")\r\n");
+			});
+		}
+		else if(key == "SetCallData"){
+			application.oJVccBar.SetCallData(DestNum.value,DestNum2.value,function (p) {
+				showLog("SetCallData callback("+p+")\r\n");
+			});
+		}
+
+    }
+
+	function funConfigurate() {
+		var options = {sip:{
+				width: parseInt(resolutionWidth.value),
+				height:parseInt(resolutionHeight.value),
+				source:oVideoSource.options[oVideoSource.options.selectedIndex].value,
+				videosource:""
+			}};
+		if(IsCheckBoxSelected("log_rtpStatics"))
+			options.sip.getrtpstatics = true;
+
+		if(options.sip.source == "camera"){
+			if(oCameraDevices.options.length>0){
+				options.sip.videosource = oCameraDevices.options[oCameraDevices.options.selectedIndex].value;
+			}
+		}
+		else if(options.sip.source == "watermark"){
+			if(oCameraDevices.options.length>0){
+				options.sip.videosource = oCameraDevices.options[oCameraDevices.options.selectedIndex].value;
+			}
+			options.sip.videotext = {
+				text:{
+					content:"座席标题",
+					x:options.sip.width-20,
+					y:100,
+					color:"#000000"
+				},
+				timer:
+						{
+							flag:true,
+							x:options.sip.width-20,
+							y:options.sip.height-40
+						},
+				image:{
+					url:"scripts/ui/images/agent.png",
+					x:options.sip.width-80,
+					y:10
+				}
+			};
+		}
+		else if(options.sip.source == "background")
+		{
+			options.sip.videosource = "scripts/ui/images/backgroup.png";
+			options.sip.videotext = {
+									timer:
+											{
+												flag:true,
+												x:460,
+												y:600,
+												color:"#000000"
+											}
+								   };
+		}
+		else if(options.sip.source == "videoFile"){
+			//options.sip.videosource = "scripts/sip/sounds/phone.mov";
+			options.sip.videosource = "scripts/sip/videos/cat.mp4";
+		}
+
+		//options.sip.playringsound = false;
+
+		application.oJVccBar.Configurate(options);
+	}
+
+	function funSendSipMessage(msgType) {
+      var msg = DestNum.value;
+      msg= trimStr(msg);
+	  if(msg == "") return;
+	  var destJson = {"msgData":msg,"msgType":msgType,"direction":"0"};
+      showLog("send:"+JSON.stringify(destJson)+"\r\n");
+	  application.oJVccBar.SendSipSessionMessage(JSON.stringify(destJson));
+    }
+
+	function openPaletteWrapper () {
+		console.info('open', $)
+		$('#paletteWrapper').window('open')
+		window.open('./dist/index.html', 'paletteIFrame')
+	  }
+
+   </script>
+
+</html>
+

@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>监控-pure js</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=gb2312">
+
+    <script src="Highcharts-5.0.12/code/highcharts.js"></script>
+    <script src="Highcharts-5.0.12/code/modules/exporting.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.4/themes/icon.css">
+    <script src="jquery-easyui-1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="jquery-easyui-1.4/jquery.easyui.min.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="scripts/ui/css/monitor.css">
+
+    <script src="scripts/jssip.min.js" type="text/javascript"></script>
+    <script src="scripts/jcinvccbar-pure.min.js" type="text/javascript"></script>
+
+    <script src="scripts/ui/jhtmlmonitor.js" type="text/javascript"></script>
+    <script src="scripts/ui/jbardisplay.js" type="text/javascript"></script>
+
+    <script src="jbarextent.js" type="text/javascript"></script>
+    <style> BODY { FONT-FAMILY: "Verdana"; FONT-SIZE: 12px; SCROLLBAR-HIGHLIGHT-COLOR: #f5f9ff; SCROLLBAR-SHADOW-COLOR: #828282; SCROLLBAR-3DLIGHT-COLOR: #828282; SCROLLBAR-ARROW-COLOR: #797979; SCROLLBAR-TRACK-COLOR: #ffffff; SCROLLBAR-FACE-COLOR: #66b7ef; SCROLLBAR-DARKSHADOW-COLOR: #ffffff }
+    .remoteView
+    {
+        width:360px;
+        height: 300px;
+        background-color: transparent;
+        z-index: 990;
+    }
+    .selfView
+    {
+        position:absolute;
+        left:8px;
+        bottom: 6px;
+        width: 133px;
+        height: 100px;
+        background-color: #aaaaaa;
+        border-top: 2px solid #aaaaaa;
+        border-right: 2px solid #aaaaaa;
+        z-index: 999;
+    }
+    </style>
+</head>
+<body onload="window_onload();">
+       <DIV style='position:absolute;border:0px solid #ff3900; left:10px;top:45px;'>
+        服务器: <input type="text" id="mainIP" value="192.168.2.136"size="10"  />
+        集团号: <input type="text" id="vccID" size="10" value="958888"  />
+		工号: <input type="text" id="agentID" value="2000" size="6"  />
+		sip端口: <input type="text" id="sipPort" value="5049" size="6"  />
+        sip密码: <input type="text" id="sipPassword" value="000000" size="14"  />
+        sipXPath: <input type="text" id="sipXPath" value="sbc" size="10"  />
+		座席密码: <input type="text" id="agnetPassword" value="111111" size="10"  />
+
+        <input id='btnInitial' type="button" onclick='funInitial();'  value="初始化" title="执行方法:Initial()" />
+        <input id='btnUnInitial' type="button" onclick='application.oJVccBar.UnInitial();' value="注销" title="执行方法:UnInitial()" />
+	    <input id='btnInitialMonitor' type="button" onclick='InitialMonitor();'  value="初始化监控" title="执行方法:InitialMonitor()" />
+        <br>
+           日志级别:<label><input id="log_error" type="checkbox" value="0" onclick="SetLogType();"/>致命错误 </label>
+           <label><input id="log_warn" type="checkbox" value="0" onclick="SetLogType();"/>警告信息 </label>
+           <label><input id="log_info" type="checkbox" value="0" onclick="SetLogType();"/>提示消息 </label>
+           <label><input id="log_debug" type="checkbox" value="0" onclick="SetLogType();"/>调试信息</label>
+           <label><input id="log_protocal" type="checkbox" value="0" onclick="SetLogType();"/>协议信息 </label>
+
+           <label><input id="log_console" type="checkbox" value="0" onclick="SetLogType();"/>sip日志 </label>
+           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           <input id='btnShow' type="button" onclick='displayM(1);' value="显示监控" title="执行方法:displayM(1)" />
+           <input id='btnUnShow' type="button" onclick='displayM(0);' value="显示日志" title="执行方法:displayM(0)" />
+           <input id='btnEmpty' type="button" onclick='emptyLog();' value="清空日志" title="执行方法:emptyLog()" />
+           <input id='btnResizebig' type="button" onclick='Resize(true);' value="增大" title="执行方法:Resize(true);" />
+           <input id='btnResizesmall' type="button" onclick='Resize(false);' value="减小" title="执行方法:Resize(false);" />
+		   <input id='btnSaveLog' type="button" onclick="application.SaveLog('');" value="保存日志" title="保存日志;" />
+           <br>
+
+		</DIV>
+        <DIV id="divTextInfo" style='position:absolute;border:0px solid #00ff00; background-color: #4d4d4d left:10px;top:95px;'>
+		<TEXTAREA id="TextareaInfo" name="TextareaInfo" rows="36" cols="160" value="" style="overflow:auto;font-family:verdana;font-size:12px"></TEXTAREA>
+		</DIV>
+       <div class="divframe" id="divVedioDlg" style="position:absolute;top:180px;left:925px;width:400px;height:370px;background:#CCE6FF;color:#333;z-index:999;display: none;">
+           <div id="divVedioWindow" class="divStatus" style="margin-left:2px;margin-top:2px;padding-top: 10px;width:380px;height:357px;background:#99cdff;color:#333;z-index:999;" >
+               &nbsp;&nbsp;&nbsp;视频窗口:
+               <div id="agent_webcam" style="cursor: move; position: relative; border: 2px solid rgb(70, 163, 255); border-radius: 10px; left: 10px; top: 5px; width: 360px; height: 300px; background: rgb(130, 130, 130);z-index:999; display: block;">
+                   <div id="agent_remoteView" class="remoteView" ></div>
+                   <div id="agent_selfView" class="selfView" style="display: none" ></div>
+               </div>
+               <div style="position: relative;left: 12px; top: 10px;  " >
+                   <input id="btnShareScreen" onclick="shareSreen(0);" type="button" value="屏幕共享" >
+                   <input id="btnShareCanvas" onclick="shareSreen(2);" type="button" value="canvas共享" >
+                   <input id="btnSnapShot" onclick="SnapShot();" type="button" value="远程快照" >
+                   <input id="btnShareFile" onclick="videoExchange();" type="button" value="视频切换" >
+               </div>
+           </div>
+       </div>
+</body>
+</html>
+ <script type="text/javascript">   
+    var _display = 1;
+	function window_onload(){
+		applicationUILoad(10,10,1000,40,"");
+        applicationLoad("",setVccBarMonitorEvent);
+	}
+	function setVccBarMonitorEvent(){
+        var param = "|||5049|||sbc";
+        param = "47.94.156.96|003721|1002|5049|HS1Cd?qF1686YE4aM|123abc|sbc";
+        var oParam = param.split("|");
+        mainIP.value = oParam[0];
+        vccID.value = oParam[1];
+        agentID.value = oParam[2];
+        sipPort.value = oParam[3];
+        sipPassword.value = oParam[4];
+        agnetPassword.value = oParam[5];
+        sipXPath.value = oParam[6];
+
+	    //3
+		application.oJVccBar.OnCallRing = onOnCallRing;
+		application.oJVccBar.AnswerCall = onOnAnswerCall;
+		application.oJVccBar.OnCallEnd = onOnCallEnd;
+		//18
+		application.oJVccBar.OnPrompt = onOnPrompt;
+		application.oJVccBar.OnReportBtnStatus = onReportBtnStatus;
+		application.oJVccBar.OnInitalSuccess = onOnInitalSuccess;
+		application.oJVccBar.OnInitalFailure = onOnInitalFailure;
+		application.oJVccBar.OnEventPrompt = onOnEventPrompt;
+		application.oJVccBar.OnAgentWorkReport = onOnAgentWorkReport;
+		application.oJVccBar.OnCallDataChanged = onOnCallDataChanged;
+		application.oJVccBar.OnBarExit = onOnBarExit;
+	    application.oJVccBar.OnCallQueueQuery = onOnCallQueueQuery;
+		application.oJVccBar.OnQueryGroupAgentStatus = onOnQueryGroupAgentStatus;
+		application.oJVccBar.OnSystemMessage  = onOnSystemMessage;
+		application.oJVccBar.OnRecvWeiboMsg = onOnRecvWeiboMsg;
+		application.oJVccBar.OnIMMessage = onOnIMMessage;
+        application.oJVccBar.OnUpdateVideoWindow = onOnMyUpdateVideoWindow;
+		application.OnDebug = onOnDebug;
+		//application.DislayLog(16,1);
+
+		application.oJBarDisplayer = appVccBar;
+		application.oJVccBar.OnMethodResponseEvent = onOnMethodResponseEvent;
+		
+		showLog(application.oBrowserSys.expression+"\r\n\r\n");
+		displayCtrl();
+        application.oJMonitor = new JHTML5MonitorCtrl(8,95,window.innerWidth-30,window.innerHeight-105,application.GetRelationPath());
+ 		application.oJMonitor.SetVccBarCtrl(application.oJVccBar);
+
+ 	    application.oJMonitor.OnMethodResponseEvent = function(key,param1){
+            showLog("信息提示【OnMethodResponseEvent】：\r\n");
+            showLog("         key       ：【"+key+"】\r\n");
+            showLog("         vReturn   ：【"+param1+"】\r\n");
+            showLog(" *******************************************************************\r\n");
+ 	        
+ 	    }
+ 	    application.oJMonitor.OnMonitorControlLoad = function () {
+			//application.oJMonitor.SetFunctionPage("0|1|2|3|4");
+            showLog("监控当前版本：【"+application.oJMonitor.GetVersion()+"】\r\n");
+ 	    }
+        //DisplayDiv("divVedioDlg",true);
+	}
+	function displayM(flag){
+	    application.oJMonitor.Display(flag);
+	    _display = flag;
+	    if(_display == 0){
+	        btnUnShow.disabled = true;
+	        btnShow.disabled = false;
+	    }
+	    else{
+	        btnUnShow.disabled = false;
+	        btnShow.disabled = true;
+	    }
+	}
+
+    function onOnMyUpdateVideoWindow(param){
+        //console.info("【OnUpdateVideoWindow】： \r\n");
+        //console.info(param);
+        if(param.key_word == "GetVideoViews"){
+            DisplayDiv("divVedioDlg",true);
+            param.param.SetVideoViews("agent_selfView","agent_remoteView","agent_shareView");
+        }
+        else if(param.key_word == "OnGetLocalView"){
+           // $$(param.param).style.display = "";
+            showLog(JSON.stringify(param)+"\r\n");
+        }
+        else if(param.key_word == "OnGetRemoteView"){
+            $$(param.param).style.display = "";
+            showLog(JSON.stringify(param)+"\r\n");
+        }
+        else if(param.key_word == "OnLeaveSuccess"){
+            DisplayDiv("divVedioDlg",false);
+        }
+    }
+
+	function InitialMonitor(){
+		//application.oJMonitor.SetAppMode(1);
+		var serverIP = document.getElementById("mainIP").value;
+		var vccID = document.getElementById("vccID").value;
+		var agentID = document.getElementById("agentID").value;
+		//application.oJMonitor.SetFunctionPage("0|1|2|3|4|5");
+		application.oJMonitor.Intial();
+		application.oJMonitor.SetWallBoardServer(serverIP, 14502);
+	}
+	function funInitial(){
+	    var  serverIP = document.getElementById("mainIP").value;
+	    var  vccID = document.getElementById("vccID").value;
+	    var  agentID  = document.getElementById("agentID").value;
+	    var  sipPort = document.getElementById("sipPort").value;
+        var  sipPassword = document.getElementById("sipPassword").value;
+        var  agnetPassword = document.getElementById("agnetPassword").value;
+		var  sipXPath = document.getElementById("sipXPath").value;
+        sipPort = parseInt(sipPort);
+
+
+        application.oJVccBar.SetAttribute("MainIP",serverIP);  //MainIP
+        application.oJVccBar.SetAttribute("MainPortID",sipPort);  //MainPort
+        application.oJVccBar.SetAttribute("BackIP",serverIP);  //BackIP
+        application.oJVccBar.SetAttribute("BackPortID",sipPort);  //BackPort
+        application.oJVccBar.SetAttribute("MonitorIP",serverIP);  //MonitorIP
+        application.oJVccBar.SetAttribute("MonitorPort",sipPort);  //MainPort
+        application.oJVccBar.SetAttribute("SipServerIP",serverIP);
+        application.oJVccBar.SetAttribute("SipServerPort",parseInt(sipPort));
+        application.oJVccBar.SetAttribute("SipProtocol","wss");
+        application.oJVccBar.SetAttribute("PhonType",1);  //0:内置坐席卡；1：内置Sip；2：外置其他终端
+        application.oJVccBar.SetAttribute("SipXPath", sipXPath);
+        application.oJVccBar.SetAttribute("AgentType",1);
+        application.oJVccBar.SetAttribute("SelfPrompt",0);
+        application.oJVccBar.SetAttribute("MediaFlag",vccID);
+        application.oJVccBar.SetAttribute("AppType",2);
+        application.oJVccBar.SetAttribute("PassWord",agnetPassword);
+        application.oJVccBar.SetAttribute("AgentID","000010"+vccID+agentID);
+        application.oJVccBar.SetAttribute("Dn","000002"+vccID+agentID);
+		application.oJVccBar.SetAttribute("SipPassWord", sipPassword);
+		application.oJVccBar.SetAttribute("SipAuthType", 1); //1 2
+		application.oJVccBar.SetAttribute("VersionType",0); //0:企业版 1:教育版
+		application.oJVccBar.SetAttribute("ProtocolType",1);
+
+        CheckVccBarXPath();
+
+        funConfigurate()
+
+        application.oJVccBar.SerialBtn("0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,19,20,21,22,30","7,8,10,11,12,13")
+
+        application.oJVccBar.Initial();
+        
+	}
+    function CheckVccBarXPath(){
+        var ctiPort = application.oJVccBar.GetAttribute("MainPortID");
+        var monitorPort = application.oJVccBar.GetAttribute("MainPortID");
+
+        if(ctiPort == 443 ||ctiPort == 5049 || ctiPort == 14900)
+            application.oJVccBar.SetAttribute("CtiXPath", "cti");
+        else
+            application.oJVccBar.SetAttribute("CtiXPath", "");
+        if(ctiPort == 443 ||monitorPort == 5049 || monitorPort == 14900)
+            application.oJVccBar.SetAttribute("MonitorXPath", "monitor");
+        else
+            application.oJVccBar.SetAttribute("MonitorXPath", "");
+        application.oJVccBar.SetAttribute("CtiXPath", "cti");
+        application.oJVccBar.SetAttribute("MonitorXPath", "monitor");
+    }
+
+    function funConfigurate() {
+        var options = {sip:{
+                width: 480,
+                height:640,
+                framerate:15,
+                bandwidth:1000,
+                source:"background",
+                videosource:""
+        }};
+        if(options.sip.source == "background"){
+            //options.source = LocalVideoSrc.BackGround;
+            options.sip.videosource = "scripts/ui/images/test.png";
+            options.sip.videotext = {};
+        }
+
+        showLog(JSON.stringify(options)+"\n");
+        application.oJVccBar.Configurate(options);
+
+    }
+
+	function Resize(flag) {
+	    var height = application.oJMonitor.height;
+        var width = application.oJMonitor.width;
+        var top = application.oJMonitor.top;
+        var left = application.oJMonitor.left;
+        if(flag == true){
+            application.oJMonitor.Resize(left,top,width+20,height+20);
+        }
+        else{
+            application.oJMonitor.Resize(left,top,width-20,height-20);
+        }
+    }
+	
+</script>

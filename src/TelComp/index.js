@@ -3,6 +3,10 @@ import thireLoader from "./thireLoader";
 import config from "./config";
 
 const loadScript = async () => {
+  if (window.application) {
+    return window.application;
+  }
+  console.log("load tel script ");
   const [JsSIP, applicationLoad, setVccBarOnEvent] = await Promise.all([
     thireLoader(
       process.env.PUBLIC_URL + "/thire/JVccBar3/scripts/jssip.min.js",
@@ -17,18 +21,15 @@ const loadScript = async () => {
       "setVccBarOnEvent"
     ),
   ]);
+  console.log("application load");
   applicationLoad("", setVccBarOnEvent, "");
+  await new Promise((resolve) => window.setTimeout(resolve, 2000));
   return window["application"];
 };
 
-const initTel = async () => {
-  if (application) {
-    return;
-  }
-  const application = await loadScript();
-  await (() =>
-    new Promise((resolve, reject) => window.setTimeout(resolve, 2000)))();
-  return new Promise((resolve, reject) => {
+const connSip = async (application) =>
+  new Promise((resolve, reject) => {
+    console.log("connect sip", application);
     // config
     application.oJVccBar.SetAttribute("MainIP", config.sip_addr);
     application.oJVccBar.SetAttribute("MainPortID", config.sip_port);
@@ -61,6 +62,7 @@ const initTel = async () => {
     application.oJVccBar.SetAttribute("ForeCastCallAutoAnswer", 1); //
     application.oJVccBar.SetAttribute("AutoAnswerDelayTime", 0);
     application.oJVccBar.OnInitalSuccess = (e) => {
+      console.log("OnInitalSuccess");
       resolve(e);
     };
     application.oJVccBar.OnAgentReport = (v) => {
@@ -68,11 +70,17 @@ const initTel = async () => {
     };
     application.oJVccBar.Initial();
   });
-};
 
 const callOut = async (tel) => {
-  let r = await initTel();
-  console.log("init complate", r);
+  const application = await loadScript();
+  console.log(application);
+  if (
+    !application ||
+    !application.oJVccBar ||
+    application.oJVccBar.GetAgentStatus() == -1
+  ) {
+    await connSip(application);
+  }
   /**
    * destNum：目标号码
    * serviceDirect：0 或空：正常呼叫

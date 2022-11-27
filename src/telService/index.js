@@ -1,12 +1,18 @@
 import jssip from "jssip";
 import thireLoader from "./thireLoader";
 import config from "./config";
+import { EventType, eventBind, eventNotice } from "./event";
 
+/**
+ * 加载资源
+ * @returns promise: application object
+ */
 const loadScript = async () => {
   if (window.application) {
     return window.application;
   }
-  console.log("load tel script ");
+  if (window._tel_debug) console.log("load tel script ");
+  eventNotice(EventType.RES_LOAD);
   const [JsSIP, applicationLoad, setVccBarOnEvent] = await Promise.all([
     thireLoader(
       process.env.PUBLIC_URL + "/thire/JVccBar3/scripts/jssip.min.js",
@@ -21,15 +27,20 @@ const loadScript = async () => {
       "setVccBarOnEvent"
     ),
   ]);
-  console.log("application load");
+  if (window._tel_debug) console.log("application load");
   applicationLoad("", setVccBarOnEvent, "");
   await new Promise((resolve) => window.setTimeout(resolve, 2000));
   return window["application"];
 };
 
+/**
+ * Sip连接
+ * @param {} application
+ * @returns promise
+ */
 const connSip = async (application) =>
   new Promise((resolve, reject) => {
-    console.log("connect sip", application);
+    if (window._tel_debug) console.log("connect sip", application);
     // config
     application.oJVccBar.SetAttribute("MainIP", config.sip_addr);
     application.oJVccBar.SetAttribute("MainPortID", config.sip_port);
@@ -62,24 +73,28 @@ const connSip = async (application) =>
     application.oJVccBar.SetAttribute("ForeCastCallAutoAnswer", 1); //
     application.oJVccBar.SetAttribute("AutoAnswerDelayTime", 0);
     application.oJVccBar.OnInitalSuccess = (e) => {
-      console.log("OnInitalSuccess");
+      if (window._tel_debug) console.log("OnInitalSuccess");
       resolve(e);
     };
     application.oJVccBar.OnCallRing = (v) => {
-      console.log("OnCallRing", v);
+      if (window._tel_debug) console.log("OnCallRing", v);
     };
     application.oJVccBar.AnswerCall = (v) => {
-      console.log("AnswerCall", v);
+      if (window._tel_debug) console.log("AnswerCall", v);
     };
     application.oJVccBar.OnReportBtnStatus = (v) => {
-      console.log("OnReportBtnStatus", v);
+      if (window._tel_debug) console.log("OnReportBtnStatus", v);
     };
     application.oJVccBar.Initial();
   });
 
+/**
+ * 呼出电话
+ * @param {String} tel 目标号码
+ */
 const callOut = async (tel) => {
   const application = await loadScript();
-  console.log(application);
+  if (window._tel_debug) console.log(application);
   if (
     !application ||
     !application.oJVccBar ||
@@ -102,7 +117,7 @@ const callOut = async (tel) => {
    * callBack：Function 参数，可选参数：回调事件 function(p){ } 内容：{'data':'0'}
    */
   application.oJVccBar.MakeCall(
-    "13571817694",
+    tel,
     0,
     "",
     "",
@@ -113,14 +128,36 @@ const callOut = async (tel) => {
     "",
     "",
     1,
-    () => {
-      console.log("callOut");
-    }
+    () => {}
   );
 };
 
 const TelService = {
-  callOut,
+  /**
+   * 呼出电话
+   * @param {*} tel
+   * @returns
+   */
+  callOut: (tel) => {
+    callOut(tel);
+    return TelService;
+  },
+
+  /**
+   * 支持的事件类型
+   */
+  EventType,
+
+  /**
+   * 事件绑定，一个事件类型只能绑定一次，多次绑定失效
+   * @param {EventType} eventType 事件类型
+   * @param {function} func 事件处理函数
+   * @returns
+   */
+  on: (eventType, func) => {
+    eventBind(eventType, func);
+    return TelService;
+  },
 };
 
 export default TelService;

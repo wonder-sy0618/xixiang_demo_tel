@@ -1,7 +1,6 @@
 import "./styles.css";
 
 import { callOut } from "./TelComp/index";
-console.log(callOut);
 
 export default function App() {
   return (

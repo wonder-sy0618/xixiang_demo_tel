@@ -1,14 +1,21 @@
+import { useState } from "react";
 import "./styles.css";
 
-import { callOut } from "./TelComp/index";
+import telService from "./telService";
 
 export default function App() {
+  const [events, setEvents] = useState([]);
   return (
     <div className="App">
       <h1>Tel Comp Demo</h1>
       <button
         onClick={() => {
-          callOut("13571817694");
+          telService.callOut("13571817694").on({
+            LOAD_RES: () => {
+              // 资源加载事件
+              setEvents(...events.push("电话条资源加载"));
+            },
+          });
         }}
       >
         开始呼叫

@@ -44,7 +44,7 @@ export default function App() {
               pushEventDisplay("状态更新：" + JSON.stringify(s));
               setBtnStatus(s.btn_status);
             })
-            .callOut("13571817694");
+            .callOut("");
         }}
         disabled={!btnStatus.call}
       >

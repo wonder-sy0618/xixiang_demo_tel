@@ -41,6 +41,7 @@ const loadScript = async () => {
 const connSip = async (application) =>
   new Promise((resolve, reject) => {
     if (window._tel_debug) console.log("connect sip", application);
+    eventNotice(EventType.SIP_RE_CONN);
     // config
     application.oJVccBar.SetAttribute("MainIP", config.sip_addr);
     application.oJVccBar.SetAttribute("MainPortID", config.sip_port);
@@ -74,16 +75,20 @@ const connSip = async (application) =>
     application.oJVccBar.SetAttribute("AutoAnswerDelayTime", 0);
     application.oJVccBar.OnInitalSuccess = (e) => {
       if (window._tel_debug) console.log("OnInitalSuccess");
+      eventNotice(EventType.SIP_CONN);
       resolve(e);
     };
     application.oJVccBar.OnCallRing = (v) => {
       if (window._tel_debug) console.log("OnCallRing", v);
+      eventNotice(EventType.CALL_RING);
     };
     application.oJVccBar.AnswerCall = (v) => {
       if (window._tel_debug) console.log("AnswerCall", v);
+      eventNotice(EventType.CALL_ANSWER, v);
     };
     application.oJVccBar.OnReportBtnStatus = (v) => {
       if (window._tel_debug) console.log("OnReportBtnStatus", v);
+      eventNotice(EventType.STATUS_UPDATE, v);
     };
     application.oJVccBar.Initial();
   });

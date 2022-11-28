@@ -88,7 +88,12 @@ const connSip = async (application) =>
     };
     application.oJVccBar.OnReportBtnStatus = (v) => {
       if (window._tel_debug) console.log("OnReportBtnStatus", v);
-      eventNotice(EventType.STATUS_UPDATE, v);
+      eventNotice(EventType.STATUS_UPDATE, {
+        btn_status: {
+          call: v.split("|").indexOf("3") >= 0 ? true : false,
+          hangup: v.split("|").indexOf("6") >= 0 ? true : false,
+        },
+      });
     };
     application.oJVccBar.Initial();
   });
@@ -146,6 +151,13 @@ const TelService = {
   callOut: (tel) => {
     callOut(tel);
     return TelService;
+  },
+
+  /**
+   * 挂断电话
+   */
+  hangUp: () => {
+    window.application.oJVccBar.Disconnect();
   },
 
   /**

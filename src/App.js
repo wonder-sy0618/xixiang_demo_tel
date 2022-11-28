@@ -4,7 +4,11 @@ import "./styles.css";
 import telService from "./telService";
 
 export default function App() {
-  const [events, setEvents] = React.useState(() => []);
+  const [events, setEvents] = React.useState([]);
+  const [btnStatus, setBtnStatus] = React.useState({
+    call: true,
+    hangup: false,
+  });
   const pushEventDisplay = (msg) => {
     setEvents((e) => [
       ...e,
@@ -19,6 +23,7 @@ export default function App() {
       <h1>Tel Comp Demo</h1>
       <button
         onClick={() => {
+          pushEventDisplay("交互操作：呼叫");
           telService
             .on(telService.EventType.RES_LOAD, () => {
               pushEventDisplay("电话条资源加载");
@@ -35,15 +40,25 @@ export default function App() {
             .on(telService.EventType.CALL_ANSWER, () => {
               pushEventDisplay("呼叫应答");
             })
-            .on(telService.EventType.STATUS_UPDATE, (v) => {
-              pushEventDisplay("状态更新", v);
+            .on(telService.EventType.STATUS_UPDATE, (s) => {
+              pushEventDisplay("状态更新：" + JSON.stringify(s));
+              setBtnStatus(s.btn_status);
             })
             .callOut("13571817694");
         }}
+        disabled={!btnStatus.call}
       >
         开始呼叫
       </button>
-      <button>挂断</button>
+      <button
+        disabled={!btnStatus.hangup}
+        onClick={() => {
+          pushEventDisplay("交互操作：挂断");
+          telService.hangUp();
+        }}
+      >
+        挂断
+      </button>
 
       <div style={{ textAlign: "left", margin: 20, lineHeight: "200%" }}>
         <div style={{ fontWeight: "bold" }}>日志</div>
